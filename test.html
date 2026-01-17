@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Login Test (Save Response)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 16px; max-width: 980px; margin: 0 auto; }
+    button { padding: 10px 14px; cursor: pointer; }
+    pre { background: #f6f8fa; padding: 12px; border-radius: 8px; overflow: auto; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
+    input { padding: 10px; width: 320px; }
+    .muted { color: #666; font-size: 13px; }
+    .btns { display: flex; gap: 10px; flex-wrap: wrap; }
+    .card { border: 1px solid #eee; border-radius: 10px; padding: 12px; }
+  </style>
+</head>
+<body>
+  <h2>Laravel API Login Test (stores last response)</h2>
+
+  <div class="card">
+    <div class="row">
+      <label>
+        <div class="muted">Endpoint</div>
+        <input id="url" value="http://127.0.0.1:8000/api/admin/login" />
+      </label>
+
+      <label>
+        <div class="muted">phone</div>
+        <input id="phone" value="admin@admin.com" />
+      </label>
+
+      <label>
+        <div class="muted">Password</div>
+        <input id="password" value="password" />
+      </label>
+    </div>
+
+    <p class="btns" style="margin-top:12px">
+      <button id="send">Send POST JSON</button>
+      <button id="download">Download last response JSON</button>
+      <button id="clear">Clear saved response</button>
+    </p>
+
+    <div class="muted">
+      Saved key: <code>api_test:last_response</code> (localStorage)
+    </div>
+  </div>
+
+  <h3 style="margin-top:18px">Result</h3>
+  <pre id="out">Loading last saved response...</pre>
+
+  <script>
+    const STORAGE_KEY = "api_test:last_response";
+
+    const out = document.getElementById('out');
+    const urlEl = document.getElementById('url');
+    const phoneEl = document.getElementById('phone');
+    const passEl = document.getElementById('password');
+
+    function headersToObject(headers) {
+      const obj = {};
+      for (const [k, v] of headers.entries()) obj[k] = v;
+      return obj;
+    }
+
+    function safeJsonParse(text) {
+      try { return JSON.parse(text); } catch { return null; }
+    }
+
+    function saveResponse(obj) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+    }
+
+    function loadResponse() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? safeJsonParse(raw) : null;
+    }
+
+    function show(obj) {
+      out.textContent = obj ? JSON.stringify(obj, null, 2) : "No saved response yet.";
+    }
+
+    // Load saved on start
+    show(loadResponse());
+
+    document.getElementById('send').addEventListener('click', async () => {
+      const url = urlEl.value.trim();
+      const payload = {
+        phone: phoneEl.value.trim(),
+        password: passEl.value,
+      };
+
+      const requestInfo = {
+        at: new Date().toISOString(),
+        request: {
+          url,
+          method: "POST",
+          payload,
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+          }
+        }
+      };
+
+      out.textContent = "Sending...\n" + JSON.stringify(requestInfo, null, 2);
+
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const bodyText = await res.text(); // مهم عشان لو رجع HTML/Redirect
+        const parsedJson = safeJsonParse(bodyText);
+
+        const result = {
+          ...requestInfo,
+          response: {
+            ok: res.ok,
+            status: res.status,
+            statusText: res.statusText,
+            redirected: res.redirected,
+            urlAfter: res.url,
+            headers: headersToObject(res.headers),
+            // نخزن الاثنين: النص الخام + JSON لو قابل للتحويل
+            bodyText,
+            bodyJson: parsedJson,
+          },
+        };
+
+        saveResponse(result);
+        show(result);
+
+      } catch (err) {
+        const errorObj = {
+          at: new Date().toISOString(),
+          error: {
+            message: err?.message || String(err),
+            name: err?.name || null,
+          }
+        };
+        saveResponse(errorObj);
+        show(errorObj);
+      }
+    });
+
+    document.getElementById('download').addEventListener('click', () => {
+      const obj = loadResponse();
+      if (!obj) return alert("No saved response to download.");
+
+      const blob = new Blob([JSON.stringify(obj, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "last-response.json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+    });
+
+    document.getElementById('clear').addEventListener('click', () => {
+      localStorage.removeItem(STORAGE_KEY);
+      show(null);
+    });
+  </script>
+</body>
+</html>
