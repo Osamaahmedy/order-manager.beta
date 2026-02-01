@@ -29,8 +29,12 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('النظام العام ')
             ->login()
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Blue,
             ])
+            ->brandLogo(asset('images/logo.png'))
+            ->favicon(asset('images/logo.png'))  // أو .ico أو .svg
+          // اللوجو العادي
+
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
@@ -57,5 +61,6 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+
     }
 }

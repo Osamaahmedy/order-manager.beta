@@ -15,7 +15,8 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-
+use App\Models\Admin;
+use App\Models\Resident;
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
@@ -69,6 +70,59 @@ class OrderResource extends Resource
                             ->disabled()
                             ->dehydrated(true)
                             ->displayFormat('Y-m-d H:i'),
+  Forms\Components\Section::make('معلومات المنشئ')
+                    ->schema([
+                        Forms\Components\Placeholder::make('created_by_info')
+                            ->label('')
+                            ->content(function ($record) {
+                                if (!$record || !$record->created_by_type) {
+                                    return '—';
+                                }
+
+                                $isAdmin = $record->created_by_type === Admin::class;
+                                $creator = null;
+
+                                if ($isAdmin) {
+                                    $creator = Admin::find($record->created_by_id);
+                                    $type = '👤 مسؤول';
+                                    $icon = '🔑';
+                                } else {
+                                    $creator = Resident::find($record->created_by_id);
+                                    $type = '👥 مقيم';
+                                    $icon = '📱';
+                                }
+
+                                if (!$creator) {
+                                    return 'غير معروف';
+                                }
+
+                                return new \Illuminate\Support\HtmlString(
+                                    '<div class="space-y-2 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-2xl">' . $icon . '</span>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-500 dark:text-gray-400">تم الإنشاء بواسطة</div>
+                                                <div class="text-lg font-bold text-gray-900 dark:text-white">' . e($creator->name) . '</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
+                                            <span class="inline-flex items-center gap-1">
+                                                <span>الصنف:</span>
+                                                <span class="font-semibold">' . $type . '</span>
+                                            </span>
+                                            ' . ($isAdmin
+                                                ? '<span>📧 ' . e($creator->email ?? '') . '</span>'
+                                                : '<span>📞 ' . e($creator->phone ?? '') . '</span>'
+                                            ) . '
+                                        </div>
+                                    </div>'
+                                );
+                            })
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsed(false)
+                    ->visible(fn($record) => $record && $record->created_by_type),
+
 
                         Forms\Components\Textarea::make('notes')
                             ->label('ملاحظات')
@@ -76,6 +130,22 @@ class OrderResource extends Resource
                             ->disabled()
                             ->dehydrated(true)
                             ->columnSpanFull(),
+                             // إضافة تطبيق التوصيل
+                                    Forms\Components\Select::make('delivery_app_id')
+                                        ->label('تطبيق التوصيل')
+                                        ->relationship('deliveryApp', 'name')
+                                        ->searchable()
+                                        ->preload()
+                                        ->nullable()
+                                        ->createOptionForm([
+                                            Forms\Components\TextInput::make('name')
+                                                ->label('اسم التطبيق')
+                                                ->required()
+                                                ->maxLength(255),
+                                        ])
+                                        ->hint('اختياري')
+                                        ->hintIcon('heroicon-m-truck'),
+
                     ])
                     ->columns(2),
 
@@ -106,10 +176,49 @@ class OrderResource extends Resource
                     ->badge()
                     ->color('primary'),
 
-                Tables\Columns\TextColumn::make('resident.name')
-                    ->label('المقيم')
-                    ->searchable()
-                    ->sortable(),
+  Tables\Columns\TextColumn::make('created_by_type')
+                    ->label('المنشئ')
+                    ->formatStateUsing(function ($record) {
+                        if (!$record->created_by_type) {
+                            return '—';
+                        }
+
+                        $isAdmin = $record->created_by_type === Admin::class;
+
+                        if ($isAdmin) {
+                            $creator = Admin::find($record->created_by_id);
+                            return $creator ? '👤 ' . $creator->name : '—';
+                        } else {
+                            $creator = Resident::find($record->created_by_id);
+                            return $creator ? '👥 ' . $creator->name : '—';
+                        }
+                    })
+                    ->badge()
+                    ->color(fn($record) =>
+                        $record->created_by_type === Admin::class ? 'warning' : 'info'
+                    )
+                    ->searchable(false)
+                    ->sortable(false)
+                    ->toggleable(),
+
+                // ✅ عمود: صنف المنشئ
+                Tables\Columns\IconColumn::make('is_admin_created')
+                    ->label('صنف')
+                    ->getStateUsing(fn($record) => $record->created_by_type === Admin::class)
+                    ->boolean()
+                    ->trueIcon('heroicon-o-shield-check')
+                    ->falseIcon('heroicon-o-user')
+                    ->trueColor('warning')
+                    ->falseColor('info')
+                    ->tooltip(fn($record) =>
+                        $record->created_by_type === Admin::class ? 'مسؤول' : 'مقيم'
+                    )
+                    ->alignCenter()
+                    ->toggleable(),
+
+
+
+
 
                 Tables\Columns\TextColumn::make('branch.name')
                     ->label('الفرع')
@@ -133,6 +242,14 @@ class OrderResource extends Resource
                     ->circular()
                     ->stacked()
                     ->limit(3),
+                        Tables\Columns\TextColumn::make('deliveryApp.name')
+                    ->label('تطبيق التوصيل')
+                    ->searchable()
+                    ->sortable()
+                    ->icon('heroicon-m-truck')
+                    ->badge()
+                    ->color('warning')
+                    ->placeholder(''),
 
                 Tables\Columns\TextColumn::make('submitted_at')
                     ->label('تاريخ الإرسال')

@@ -10,10 +10,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasRoles;
-public function departments()
-{
-    return $this->belongsToMany(Department::class);
-}
+
 
     /**
      * الخصائص التي يمكن تعبئتها جماعياً

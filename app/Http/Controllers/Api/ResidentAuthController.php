@@ -25,9 +25,11 @@ class ResidentAuthController extends Controller
 
         // ✅ التحقق من صحة البيانات
         if (!$resident || !Hash::check($request->password, $resident->password)) {
-            throw ValidationException::withMessages([
-                'phone' => ['رقم الهاتف أو كلمة المرور غير صحيحة'],
-            ]);
+           return response()->json([
+    'success' => false,
+    'message' => 'رقم الهاتف أو كلمة المرور غير صحيحة',
+], 401);
+
         }
 
         // ✅ التحقق من أن المقيم نشط

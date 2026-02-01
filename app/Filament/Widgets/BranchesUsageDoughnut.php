@@ -11,20 +11,17 @@ class BranchesUsageDoughnut extends ChartWidget
 {
     use InteractsWithPageFilters;
 
-    protected static ?string $heading = 'Top branches (Orders)';
+    protected static ?string $heading = 'أداء الفروع الرئيسية';
+    protected static ?string $description = 'تحليل حيوي لتوزيع الطلبات والنسب المئوية لكل فرع.';
     protected int|string|array $columnSpan = 1;
 
     protected function getData(): array
     {
-        $branchId = $this->filters['branch_id'] ?? null;
-
-        // لو فلترت بفرع، ما له معنى “Top branches”، فخليه يرجع نفس الفرع فقط
-        // (أو تجاهل الفلتر هنا). أنا هنا بخليه “يتجاهل الفلتر” عشان يظل Top.
         $rows = Order::query()
             ->selectRaw('branch_id, COUNT(*) as c')
             ->groupBy('branch_id')
             ->orderByDesc('c')
-            ->limit(6)
+            ->limit(5) // تقليل العدد لـ 5 يجعل التصميم أنظف وأوسع
             ->pluck('c', 'branch_id')
             ->toArray();
 
@@ -35,18 +32,26 @@ class BranchesUsageDoughnut extends ChartWidget
 
         $labels = [];
         $values = [];
-
         foreach ($rows as $bid => $count) {
-            $labels[] = $names[$bid] ?? "Branch #{$bid}";
+            $labels[] = $names[$bid] ?? "فرع #{$bid}";
             $values[] = (int) $count;
         }
 
         return [
             'datasets' => [
                 [
-                    'label' => 'Orders',
                     'data' => $values,
-                    'hoverOffset' => 10, // ✅ Hover pop
+                    'backgroundColor' => [
+                        '#6366f1', // Indigo
+                        '#10b981', // Emerald
+                        '#f59e0b', // Amber
+                        '#3b82f6', // Blue
+                        '#f43f5e', // Rose
+                    ],
+                    'hoverOffset' => 25,
+                    'borderRadius' => 20, // زيادة الانحناء لجعلها "Organic"
+                    'spacing' => 8,      // مسافة أكبر بين القطع لزيادة الفخامة
+                    'borderWidth' => 0,  // إلغاء الحدود تماماً لتركيز الرؤية على اللون
                 ],
             ],
             'labels' => $labels,
@@ -61,20 +66,38 @@ class BranchesUsageDoughnut extends ChartWidget
     protected function getOptions(): array
     {
         return [
-            'cutout' => '68%',
+            'cutout' => '50%', // زيادة عرض "لحم" الحلقة كما طلبت (سماكة أكبر)
+            'radius' => '90%',
+            'animation' => [
+                'animateRotate' => true,
+                'animateScale' => true,
+                'duration' => 2500, // أنيميشن طويل وناعم
+                'easing' => 'easeOutElastic', // تأثير مطاطي حيوي جداً عند الظهور
+            ],
             'plugins' => [
                 'legend' => [
                     'position' => 'bottom',
                     'labels' => [
                         'usePointStyle' => true,
+                        'padding' => 30,
+                        'font' => ['size' => 14, 'weight' => '600'],
+                        'color' => '#94a3b8',
                     ],
                 ],
                 'tooltip' => [
-                    'enabled' => true,
-                    'mode' => 'nearest',
-                    'intersect' => true,
+                    'cornerRadius' => 12,
+                    'padding' => 15,
+                    'backgroundColor' => 'rgba(15, 23, 42, 0.9)', // Dark Slate
                 ],
             ],
+        ];
+    }
+
+    protected function getExtraAttributes(): array
+    {
+        return [
+            // إضافة تأثير زجاجي (Glassmorphism) بسيط ودعم الدارك مود
+            'class' => 'rounded-3xl shadow-xl border-0 bg-white/50 dark:bg-gray-900/50 backdrop-blur-md transition-all duration-500 hover:shadow-2xl hover:-translate-y-1',
         ];
     }
 }

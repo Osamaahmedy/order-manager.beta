@@ -10,13 +10,12 @@ class OrdersPerMonthChart extends ChartWidget
 {
     use InteractsWithPageFilters;
 
-    protected static ?string $heading = 'Orders per month';
+    // العنوان بالعربي
+    protected static ?string $heading = 'إجمالي الطلبات شهرياً';
 
-    // ✅ Full width
     protected int|string|array $columnSpan = 'full';
 
-    // ✅ ارتفاع أكبر
-    protected static ?string $maxHeight = '360px';
+    protected static ?string $maxHeight = '420px';
 
     protected function getData(): array
     {
@@ -30,18 +29,21 @@ class OrdersPerMonthChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Orders',
+                    'label' => 'الطلبات',
                     'data' => $values,
-
-                    // ✅ Area
-                    'fill' => true,
-                    'tension' => 0.4,
-
-                    // ✅ خط أنعم
-                    'borderWidth' => 2,
-                    'pointRadius' => 0,
-                    'pointHoverRadius' => 6,
-                    'pointHitRadius' => 20,
+                    'fill' => 'start',
+                    'tension' => 0.4, // انسيابية عالية للخط
+                    'borderWidth' => 4,
+                    'borderColor' => '#6366f1', // Indigo 500
+                    'backgroundColor' => 'rgba(99, 102, 241, 0.1)', // تظليل بنفسجي خفيف جداً
+                    'pointRadius' => 4,
+                    'pointBackgroundColor' => '#ffffff',
+                    'pointBorderColor' => '#6366f1',
+                    'pointBorderWidth' => 2,
+                    'pointHoverRadius' => 7,
+                    'pointHoverBackgroundColor' => '#6366f1',
+                    'pointHoverBorderColor' => '#ffffff',
+                    'pointHoverBorderWidth' => 3,
                 ],
             ],
             'labels' => $labels,
@@ -53,76 +55,50 @@ class OrdersPerMonthChart extends ChartWidget
         return 'line';
     }
 
-    /**
-     * ✅ خيارات احترافية + تفاعل Hover قوي + Gradient Area
-     */
     protected function getOptions(): array
     {
         return [
-            'maintainAspectRatio' => false,
             'responsive' => true,
+            'maintainAspectRatio' => false,
             'plugins' => [
                 'legend' => ['display' => false],
                 'tooltip' => [
                     'enabled' => true,
-                    'mode' => 'index',
-                    'intersect' => false,
+                    'backgroundColor' => '#1e1b4b', // لون Indigo داكن جداً للـ Tooltip
                     'padding' => 12,
-                    'displayColors' => false,
+                    'borderRadius' => 12,
+                    'titleAlign' => 'right',
+                    'bodyAlign' => 'right',
+                    'displayColors' => true,
+                    'borderColor' => 'rgba(99, 102, 241, 0.5)',
+                    'borderWidth' => 1,
                 ],
             ],
-
-            // ✅ hover/interaction مثل الداشبورد الحديثة
-            'interaction' => [
-                'mode' => 'index',
-                'intersect' => false,
-            ],
-
-            // ✅ أنيميشن خفيف
-            'animation' => [
-                'duration' => 450,
-            ],
-
-            // ✅ محاور أنظف
             'scales' => [
                 'x' => [
                     'grid' => ['display' => false],
                     'ticks' => [
-                        'maxRotation' => 0,
-                        'autoSkip' => true,
+                        'color' => '#94a3b8',
+                        'font' => ['size' => 12, 'weight' => '600'],
                     ],
                 ],
                 'y' => [
                     'beginAtZero' => true,
                     'grid' => [
+                        'color' => 'rgba(148, 163, 184, 0.1)',
+                        'borderDash' => [4, 4], // خطوط شبكة منقطة
                         'drawBorder' => false,
                     ],
                     'ticks' => [
                         'precision' => 0,
+                        'color' => '#94a3b8',
+                        'padding' => 10,
                     ],
                 ],
             ],
-
-            /**
-             * ✅ Gradient fill (احترافي)
-             * Chart.js scriptable backgroundColor
-             */
-            'datasets' => [
-                'line' => [
-                    'backgroundColor' => [
-                        'type' => 'scriptable',
-                        'fn' => "function(ctx){
-                            const chart = ctx.chart;
-                            const {ctx: c, chartArea} = chart;
-                            if (!chartArea) return 'rgba(245, 158, 11, 0.15)'; // fallback
-                            const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-                            g.addColorStop(0, 'rgba(245, 158, 11, 0.28)');
-                            g.addColorStop(1, 'rgba(245, 158, 11, 0.02)');
-                            return g;
-                        }",
-                    ],
-                    'borderColor' => 'rgba(245, 158, 11, 1)',
-                ],
+            'animation' => [
+                'duration' => 1500,
+                'easing' => 'easeOutQuart',
             ],
         ];
     }
@@ -146,10 +122,18 @@ class OrdersPerMonthChart extends ChartWidget
             $m = now()->subMonths(($months - 1) - $i);
             $key = $m->format('Y-m');
 
-            $labels[] = $m->format('M');
+            $labels[] = $m->translatedFormat('F'); // اسم الشهر بالعربي (يناير، فبراير...)
             $values[] = (int) ($rows[$key] ?? 0);
         }
 
         return [$labels, $values];
+    }
+
+    // تنسيق الحاوية الخارجية (بدون ظل أسود ومع حواف دائرية فخمة)
+    protected function getExtraAttributes(): array
+    {
+        return [
+            'class' => 'rounded-[2rem] shadow-sm border-0 bg-white dark:bg-gray-900 ring-1 ring-gray-100 dark:ring-gray-800 transition-all hover:ring-indigo-500/50',
+        ];
     }
 }

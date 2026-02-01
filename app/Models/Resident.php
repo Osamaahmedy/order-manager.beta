@@ -30,23 +30,6 @@ class Resident extends Authenticatable
         'is_active' => 'boolean',
     ];
 
-    protected static function booted()
-    {
-        // عند إنشاء مقيم جديد، تسجيل الاستخدام
-        static::created(function ($resident) {
-            $admin = $resident->branch?->admins()->first();
-            if ($admin && $subscription = $admin->subscription()) {
-                $subscription->recordUsage('residents', 1);
-            }
-        });
-
-        // منع تسجيل الدخول إذا كان المقيم غير نشط
-        static::retrieved(function ($resident) {
-            if (!$resident->is_active && auth()->guard('api')->check()) {
-                abort(403, 'حسابك معطل. يرجى التواصل مع الإدارة');
-            }
-        });
-    }
 
     public function branch(): BelongsTo
     {
@@ -58,9 +41,6 @@ class Resident extends Authenticatable
         return $this->hasMany(Order::class);
     }
 
-    /**
-     * للبحث بالهاتف بدلاً من Email
-     */
     public function findForPassport($username)
     {
         return $this->where('phone', $username)
@@ -68,25 +48,16 @@ class Resident extends Authenticatable
             ->first();
     }
 
-    /**
-     * scope للمقيمين النشطين فقط
-     */
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
 
-    /**
-     * الحصول على الـ Admin المسؤول
-     */
     public function getAdmin()
     {
         return $this->branch?->admins()->first();
     }
 
-    /**
-     * التحقق من أن المقيم تابع لـ admin مشترك
-     */
     public function hasActiveSubscription(): bool
     {
         $admin = $this->getAdmin();

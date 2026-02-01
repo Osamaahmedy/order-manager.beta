@@ -14,7 +14,7 @@ class AdminAuthController extends Controller
      * تسجيل دخول المشرف
      * يحذف كل الـ Tokens القديمة ويصدر token جديد
      */
-   public function login(Request $request)
+public function login(Request $request)
 {
     $request->validate([
         'phone' => 'required|string',
@@ -24,15 +24,16 @@ class AdminAuthController extends Controller
     $admin = Admin::where('phone', $request->phone)->first();
 
     if (!$admin || !Hash::check($request->password, $admin->password)) {
-        throw ValidationException::withMessages([
-            'phone' => ['رقم الهاتف أو كلمة المرور غير صحيحة'],
-        ]);
+        return response()->json([
+            'success' => false,
+            'message' => 'رقم الهاتف أو كلمة المرور غير صحيحة',
+        ], 401);
     }
 
-    // حذف كل الـ Tokens القديمة
+    // حذف كل التوكنات القديمة
     $admin->tokens()->delete();
 
-    // إنشاء Token جديد بدون Scope
+    // إنشاء توكن جديد
     $token = $admin->createToken('admin-token')->accessToken;
 
     return response()->json([
@@ -49,6 +50,7 @@ class AdminAuthController extends Controller
         ],
     ], 200);
 }
+
 
 
     /**
@@ -140,27 +142,30 @@ class AdminAuthController extends Controller
     /**
      * عرض الأقسام المرتبطة بالمشرف
      */
-    public function branches(Request $request)
-    {
-        $admin = $request->user('admin-api');
-        $branches = $admin->branches()->with('resident')->get();
+   public function branches(Request $request)
+{
+    $admin = $request->user('admin-api');
 
-        return response()->json([
-            'success' => true,
-            'count' => $branches->count(),
-            'branches' => $branches->map(function ($branch) {
-                return [
-                    'id' => $branch->id,
-                    'name' => $branch->name,
-                    'type' => $branch->type,
-                    'resident' => $branch->resident ? [
-                        'id' => $branch->resident->id,
-                        'name' => $branch->resident->name,
-                        'phone' => $branch->resident->phone,
-                    ] : null,
-                    'created_at' => $branch->created_at->format('Y-m-d'),
-                ];
-            }),
-        ], 200);
-    }
+    $branches = $admin->branches()
+        ->where('is_active', true)
+        ->withCount('residents')
+        ->orderBy('name')
+        ->get();
+
+    return response()->json([
+        'success' => true,
+        'count' => $branches->count(),
+        'branches' => $branches->map(function ($branch) {
+            return [
+                'id' => $branch->id,
+                'name' => $branch->name,
+                'type' => $branch->type,
+                'location' => $branch->location,
+                'residents_count' => $branch->residents_count,
+                'created_at' => $branch->created_at->format('Y-m-d'),
+            ];
+        }),
+    ], 200);
+}
+
 }

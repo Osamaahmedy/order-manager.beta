@@ -10,13 +10,10 @@ class OrdersDailyArea extends ChartWidget
 {
     use InteractsWithPageFilters;
 
-    protected static ?string $heading = 'Orders (Last 14 days)';
-
-    // ✅ نصف المربع (يعني 2 في الصف)
+    // العنوان بالعربي
+    protected static ?string $heading = 'إحصائيات الطلبات (آخر 14 يوم)';
     protected int|string|array $columnSpan = 1;
-
-    // ✅ أكبر
-    protected static ?string $maxHeight = '340px';
+    protected static ?string $maxHeight = '400px';
 
     protected function getData(): array
     {
@@ -30,17 +27,24 @@ class OrdersDailyArea extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Orders',
+                    'label' => 'الطلبات',
                     'data' => $values,
-                    'fill' => true,
-                    'tension' => 0.42,
-                    'borderWidth' => 2,
-                    'pointRadius' => 0,
-                    'pointHoverRadius' => 7,
-                    'pointHitRadius' => 22,
+                    'fill' => 'start',
+                    'tension' => 0.5, // لزيادة انسيابية الخط (حركات!)
+                    'borderColor' => '#0ea5e9', // لون أزرق سماوي حيوي (Sky 500)
+                    'borderWidth' => 4,
+                    'pointBackgroundColor' => '#ffffff', // نقطة بيضاء تبرز فوق الخط
+                    'pointBorderColor' => '#0ea5e9',
+                    'pointBorderWidth' => 2,
+                    'pointRadius' => 4,
+                    'pointHoverRadius' => 8, // تكبر النقطة عند التمرير عليها
+                    'pointHoverBackgroundColor' => '#0ea5e9',
+                    'pointHoverBorderColor' => '#ffffff',
+                    'pointHoverBorderWidth' => 3,
+                    'backgroundColor' => 'rgba(14, 165, 233, 0.15)', // تظليل أزرق شفاف نابض
                 ],
             ],
-            'labels' => $labels, // ✅ تواريخ الأيام
+            'labels' => $labels,
         ];
     }
 
@@ -52,58 +56,44 @@ class OrdersDailyArea extends ChartWidget
     protected function getOptions(): array
     {
         return [
-            'responsive' => true,
-            'maintainAspectRatio' => false,
-
             'plugins' => [
                 'legend' => ['display' => false],
                 'tooltip' => [
                     'enabled' => true,
                     'mode' => 'index',
                     'intersect' => false,
+                    'backgroundColor' => '#0f172a',
+                    'titleAlign' => 'right', // متناسب مع العربي
+                    'bodyAlign' => 'right',
                     'padding' => 12,
-                    'displayColors' => false,
+                    'displayColors' => true,
+                    'borderColor' => '#0ea5e9',
+                    'borderWidth' => 1,
                 ],
-            ],
-            'interaction' => [
-                'mode' => 'index',
-                'intersect' => false,
-            ],
-            'hover' => [
-                'mode' => 'index',
-                'intersect' => false,
             ],
             'scales' => [
                 'x' => [
                     'grid' => ['display' => false],
                     'ticks' => [
-                        'autoSkip' => true,
-                        'maxRotation' => 0,
+                        'font' => ['size' => 11, 'weight' => '500'],
+                        'color' => '#94a3b8',
                     ],
                 ],
                 'y' => [
                     'beginAtZero' => true,
-                    'ticks' => ['precision' => 0],
-                ],
-            ],
-
-            // ✅ Area gradient
-            'datasets' => [
-                'line' => [
-                    'borderColor' => 'rgba(245, 158, 11, 1)',
-                    'backgroundColor' => [
-                        'type' => 'scriptable',
-                        'fn' => "function(context){
-                            const chart = context.chart;
-                            const {ctx, chartArea} = chart;
-                            if (!chartArea) return 'rgba(245,158,11,0.18)';
-                            const g = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-                            g.addColorStop(0, 'rgba(245,158,11,0.30)');
-                            g.addColorStop(1, 'rgba(245,158,11,0.02)');
-                            return g;
-                        }",
+                    'grid' => [
+                        'color' => 'rgba(226, 232, 240, 0.3)',
+                        'borderDash' => [5, 5], // خطوط شبكة متقطعة لشكل أكثر حداثة
+                    ],
+                    'ticks' => [
+                        'precision' => 0,
+                        'color' => '#94a3b8',
                     ],
                 ],
+            ],
+            'animation' => [
+                'duration' => 2000, // حركة دخول بطيئة واحترافية
+                'easing' => 'easeOutQuart',
             ],
         ];
     }
@@ -111,7 +101,6 @@ class OrdersDailyArea extends ChartWidget
     private function countPerDay($query, int $days = 14): array
     {
         $start = now()->subDays($days - 1)->startOfDay();
-
         $rows = (clone $query)
             ->selectRaw("DATE(created_at) as d, COUNT(*) as c")
             ->where('created_at', '>=', $start)
@@ -126,9 +115,7 @@ class OrdersDailyArea extends ChartWidget
         for ($i = 0; $i < $days; $i++) {
             $day = now()->subDays(($days - 1) - $i);
             $key = $day->toDateString();
-
-            // ✅ شكل التاريخ في محور X
-            $labels[] = $day->format('M d'); // مثال: Jan 15
+            $labels[] = $day->translatedFormat('d M'); // تنسيق تاريخ يدعم العربية
             $values[] = (int) ($rows[$key] ?? 0);
         }
 

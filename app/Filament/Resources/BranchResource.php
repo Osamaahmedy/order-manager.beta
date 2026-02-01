@@ -19,11 +19,15 @@ class BranchResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-building-office';
 
-    protected static ?string $navigationLabel = 'الأقسام';
+    protected static ?string $navigationLabel = 'الفروع';
 
-    protected static ?string $modelLabel = 'قسم';
+    protected static ?string $modelLabel = 'فرع';
 
-    protected static ?string $pluralModelLabel = 'الأقسام';
+    protected static ?string $pluralModelLabel = 'الفروع';
+    protected static ?int $navigationSort = 2;
+    protected static ?string $navigationGroup = 'إدارة مشتركين النظام';
+
+
 
     public static function form(Form $form): Form
     {

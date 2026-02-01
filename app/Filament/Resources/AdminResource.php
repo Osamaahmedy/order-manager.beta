@@ -25,6 +25,10 @@ class AdminResource extends Resource
     protected static ?string $modelLabel = 'مسؤول';
 
     protected static ?string $pluralModelLabel = 'المسؤولين';
+     protected static ?int $navigationSort = 1;
+    protected static ?string $navigationGroup = 'إدارة مشتركين النظام';
+
+
 
     public static function getEloquentQuery(): Builder
     {
@@ -87,7 +91,7 @@ class AdminResource extends Resource
                                 }
                                 $sub = $record->subscription();
                                 if (!$sub) {
-                                    return '⚠️ لا يوجد اشتراك';
+                                    return 'لا يوجد اشتراك';
                                 }
 
                                 $planName = $sub->plan->name;
@@ -105,68 +109,51 @@ class AdminResource extends Resource
                                 }
                                 $sub = $record->subscription();
                                 if (!$sub) {
-                                    return '⚠️ لا يوجد اشتراك';
-                                }
-
-                                $statusText = match($sub->status) {
-                                    'active' => '✅ نشط',
-                                    'canceled' => '❌ ملغي',
-                                    'expired' => '⏰ منتهي',
-                                    'suspended' => '⏸️ معلق',
-                                    default => $sub->status,
-                                };
-
-                                $trialBadge = $sub->onTrial() ? ' 🎁 تجريبي' : '';
-
-                                return $statusText . $trialBadge;
-                            }),
-
-                        Forms\Components\Placeholder::make('subscription_period')
-                            ->label('فترة الاشتراك')
-                            ->content(function (?Model $record) {
-                                if (!$record) {
-                                    return '-';
-                                }
-                                $sub = $record->subscription();
-                                if (!$sub) {
-                                    return '-';
-                                }
-
-                                $start = $sub->starts_at->format('Y-m-d');
-
-                                // ✅ عرض الفترة التجريبية إن وجدت
-                                if ($sub->onTrial() && $sub->trial_ends_at) {
-                                    $trialEnd = $sub->trial_ends_at->format('Y-m-d');
-                                    $actualEnd = $sub->ends_at ? $sub->ends_at->format('Y-m-d') : '∞';
-                                    return "🎁 تجريبي: {$start} → {$trialEnd}\n📅 الفعلي: {$trialEnd} → {$actualEnd}";
-                                }
-
-                                $end = $sub->ends_at ? $sub->ends_at->format('Y-m-d') : '∞ مدى الحياة';
-
-                                return $start . ' → ' . $end;
-                            })
-                            ->columnSpanFull(),
-
-                        Forms\Components\Placeholder::make('days_remaining')
-                            ->label('الأيام المتبقية')
-                            ->content(function (?Model $record) {
-                                if (!$record) {
-                                    return '-';
-                                }
-                                $sub = $record->subscription();
-                                if (!$sub) {
                                     return 'لا يوجد اشتراك';
                                 }
 
-                                $days = $sub->daysRemaining();
+                                return match($sub->status) {
+                                    'active' => 'نشط',
+                                    'canceled' => 'ملغي',
+                                    'expired' => 'منتهي',
+                                    'suspended' => 'معلق',
+                                    default => $sub->status,
+                                };
+                            }),
 
-                                // ✅ إضافة علامة للفترة التجريبية
-                                $badge = $sub->onTrial() ? ' 🎁 تجريبي' : '';
+                        // ✅ تاريخ البداية
+                        Forms\Components\Placeholder::make('subscription_start')
+                            ->label('تاريخ البداية')
+                            ->content(function (?Model $record) {
+                                if (!$record) {
+                                    return '-';
+                                }
+                                $sub = $record->subscription();
+                                if (!$sub) {
+                                    return 'لا يوجد';
+                                }
 
-                                if ($days === -1) return '✅ غير محدود' . $badge;
-                                if ($days <= 0) return '⏰ منتهي';
-                                if ($days <= 7) return '⚠️ ' . $days . ' أيام' . $badge;
-                                return '✅ ' . $days . ' يوم' . $badge;
+                                return $sub->starts_at->format('Y-m-d');
+                            }),
+
+                        // ✅ تاريخ الانتهاء
+                        Forms\Components\Placeholder::make('subscription_end')
+                            ->label('تاريخ الانتهاء')
+                            ->content(function (?Model $record) {
+                                if (!$record) {
+                                    return '-';
+                                }
+                                $sub = $record->subscription();
+                                if (!$sub) {
+                                    return 'لا يوجد';
+                                }
+
+                                // ✅ إذا لم يكن هناك تاريخ انتهاء
+                                if (!$sub->ends_at) {
+                                    return 'لا يوجد';
+                                }
+
+                                return $sub->ends_at->format('Y-m-d');
                             }),
 
                         Forms\Components\Placeholder::make('branches_usage')
@@ -177,11 +164,12 @@ class AdminResource extends Resource
                                 }
                                 $sub = $record->subscription();
                                 if (!$sub) {
-                                    return '-';
+                                    $used = $record->branches()->count();
+                                    return "{$used} / غير محدود";
                                 }
 
                                 $used = $record->branches()->count();
-                                $limit = $sub->plan->max_branches ?? '∞';
+                                $limit = $sub->plan->max_branches ?? 'غير محدود';
                                 $remaining = $sub->getRemainingQuota('branches');
 
                                 return "{$used} / {$limit} (متبقي: {$remaining})";
@@ -195,11 +183,12 @@ class AdminResource extends Resource
                                 }
                                 $sub = $record->subscription();
                                 if (!$sub) {
-                                    return '-';
+                                    $used = $record->residents()->count();
+                                    return "{$used} / غير محدود";
                                 }
 
                                 $used = $record->residents()->count();
-                                $limit = $sub->plan->max_residents ?? '∞';
+                                $limit = $sub->plan->max_residents ?? 'غير محدود';
                                 $remaining = $sub->getRemainingQuota('residents');
 
                                 return "{$used} / {$limit} (متبقي: {$remaining})";
@@ -223,17 +212,11 @@ class AdminResource extends Resource
 
                                 $sub = $record->subscription();
                                 if (!$sub) {
-                                    return '⚠️ يجب تفعيل اشتراك أولاً';
+                                    return 'لا يوجد اشتراك - يمكنك الاختيار بحرية';
                                 }
 
                                 $remaining = $sub->getRemainingQuota('branches');
                                 return "المتبقي: {$remaining}";
-                            })
-                            ->disabled(function (?Model $record) {
-                                if (!$record) {
-                                    return false;
-                                }
-                                return !$record->subscribed();
                             })
                             ->dehydrated(true),
                     ])
@@ -273,10 +256,7 @@ class AdminResource extends Resource
                         $sub = $record->subscription();
                         if (!$sub) return null;
 
-                        $planName = $sub->plan->name;
-                        $trialBadge = $sub->onTrial() ? ' 🎁' : '';
-
-                        return $planName . $trialBadge;
+                        return $sub->plan->name;
                     })
                     ->color(function ($state) {
                         return $state ? 'success' : 'danger';
@@ -310,41 +290,43 @@ class AdminResource extends Resource
                     })
                     ->default('-'),
 
-                Tables\Columns\TextColumn::make('subscription_ends')
-                    ->label('ينتهي في')
+                // ✅ عمود تاريخ البداية
+                Tables\Columns\TextColumn::make('subscription_starts')
+                    ->label('تاريخ البداية')
                     ->getStateUsing(function (Admin $record) {
                         $sub = $record->subscription();
                         if (!$sub) return null;
 
-                        // ✅ التحقق من الفترة التجريبية أولاً
-                        $effectiveDate = $sub->onTrial() && $sub->trial_ends_at
-                            ? $sub->trial_ends_at
-                            : $sub->ends_at;
+                        return $sub->starts_at->format('Y-m-d');
+                    })
+                    ->default('لا يوجد')
+                    ->toggleable(),
 
-                        if (!$effectiveDate) return '∞ مدى الحياة';
+                // ✅ عمود تاريخ الانتهاء (بدون الأيام المتبقية)
+                Tables\Columns\TextColumn::make('subscription_ends')
+                    ->label('تاريخ الانتهاء')
+                    ->getStateUsing(function (Admin $record) {
+                        $sub = $record->subscription();
 
-                        $days = $sub->daysRemaining();
-                        $date = $effectiveDate->format('Y-m-d');
+                        // ✅ إذا لم يكن هناك اشتراك
+                        if (!$sub) return null;
 
-                        // ✅ إضافة علامة التجريبي
-                        $badge = $sub->onTrial() ? ' 🎁' : '';
+                        // ✅ إذا لم يكن هناك تاريخ انتهاء
+                        if (!$sub->ends_at) return null;
 
-                        if ($days <= 0) return '⏰ ' . $date . $badge;
-                        if ($days <= 7) return '⚠️ ' . $date . ' (' . $days . ' أيام)' . $badge;
-                        return $date . ' (' . $days . ' يوم)' . $badge;
+                        return $sub->ends_at->format('Y-m-d');
                     })
                     ->color(function (Admin $record) {
                         $sub = $record->subscription();
-                        if (!$sub) return 'gray';
+                        if (!$sub || !$sub->ends_at) return 'gray';
 
                         $days = $sub->daysRemaining();
 
-                        if ($days === -1) return 'success'; // lifetime
                         if ($days <= 0) return 'danger';
                         if ($days <= 7) return 'warning';
                         return 'success';
                     })
-                    ->default('-')
+                    ->default('لا يوجد')
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('branches_count')
@@ -364,7 +346,6 @@ class AdminResource extends Resource
                     ->label('حالة الاشتراك')
                     ->options([
                         'active' => 'نشط',
-                        'trial' => 'تجريبي',
                         'expired' => 'منتهي',
                         'none' => 'بدون اشتراك',
                     ])
@@ -372,13 +353,6 @@ class AdminResource extends Resource
                         if ($data['value'] === 'active') {
                             return $query->whereHas('subscriptions', function ($q) {
                                 $q->where('status', 'active');
-                            });
-                        }
-                        if ($data['value'] === 'trial') {
-                            return $query->whereHas('subscriptions', function ($q) {
-                                $q->where('status', 'active')
-                                  ->whereNotNull('trial_ends_at')
-                                  ->where('trial_ends_at', '>', now());
                             });
                         }
                         if ($data['value'] === 'expired') {
@@ -416,15 +390,10 @@ class AdminResource extends Resource
                                 ->required()
                                 ->searchable()
                                 ->preload(),
-
-                            Forms\Components\Toggle::make('with_trial')
-                                ->label('تفعيل الفترة التجريبية')
-                                ->default(false)
-                                ->helperText('سيتم تطبيق أيام التجربة المجانية إن وجدت'),
                         ])
                         ->action(function (Admin $record, array $data) {
                             $plan = Plan::find($data['plan_id']);
-                            $record->subscribe($plan, $data['with_trial']);
+                            $record->subscribe($plan, false);
 
                             Notification::make()
                                 ->title('تم تفعيل الاشتراك بنجاح')

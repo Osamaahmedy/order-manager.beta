@@ -23,6 +23,10 @@ class RoleResource extends Resource
     protected static ?string $navigationLabel = 'الادوار';
     protected static ?string $pluralLabel = 'الادوار';
     protected static ?string $modelLabel = 'الادوار';
+     protected static ?int $navigationSort = 2;
+    protected static ?string $navigationGroup = 'إدارة حسابات النظام';
+
+
 
     public static function form(Form $form): Form
     {

@@ -27,19 +27,33 @@ class ResidentResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    // ✅ عرض مقيمي فروع الـ Admin الحالي فقط
+    // ✅ الحل: التحقق من وجود المستخدم
     public static function getEloquentQuery(): Builder
     {
+        $query = parent::getEloquentQuery();
         $admin = auth()->user();
-        $branchIds = $admin->branches()->pluck('branches.id');
 
-        return parent::getEloquentQuery()
-            ->whereIn('branch_id', $branchIds);
+        // ✅ التحقق من أن Admin موجود
+        if (!$admin) {
+            return $query->whereRaw('1 = 0'); // لا يرجع أي نتائج
+        }
+
+        // جلب IDs الفروع المرتبطة بالـ Admin
+        $branchIds = $admin->branches()->pluck('branches.id')->toArray();
+
+        // إرجاع المقيمين التابعين لهذه الفروع فقط
+        return $query->whereIn('branch_id', $branchIds);
     }
 
     public static function form(Form $form): Form
     {
         $admin = auth()->user();
+
+        // ✅ التحقق من وجود Admin
+        if (!$admin) {
+            return $form->schema([]);
+        }
+
         $subscription = $admin->subscription();
         $branchIds = $admin->branches()->pluck('branches.id');
 
@@ -163,7 +177,21 @@ class ResidentResource extends Resource
 
                 Tables\Filters\SelectFilter::make('branch_id')
                     ->label('الفرع')
-                    ->relationship('branch', 'name')
+                    ->relationship(
+                        'branch',
+                        'name',
+                        function (Builder $query) {
+                            $admin = auth()->user();
+                            // ✅ التحقق من وجود Admin
+                            if (!$admin) {
+                                return $query->whereRaw('1 = 0');
+                            }
+                            return $query->whereIn(
+                                'id',
+                                $admin->branches()->pluck('branches.id')->toArray()
+                            );
+                        }
+                    )
                     ->searchable()
                     ->preload(),
             ])
@@ -206,21 +234,34 @@ class ResidentResource extends Resource
                             ->send();
                     }),
 
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->successNotification(
+                        Notification::make()
+                            ->success()
+                            ->title('تم الحذف')
+                            ->body('تم حذف المقيم بنجاح'),
+                    ),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->successNotification(
+                            Notification::make()
+                                ->success()
+                                ->title('تم الحذف')
+                                ->body('تم حذف المقيمين المحددين بنجاح'),
+                        ),
                 ]),
             ])
             ->emptyStateHeading('لا يوجد مقيمين')
-            ->emptyStateDescription('ابدأ بإضافة أول مقيم')
+            ->emptyStateDescription('ابدأ بإضافة أول مقيم لفروعك')
             ->emptyStateIcon('heroicon-o-user')
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make()
                     ->label('إضافة مقيم')
                     ->icon('heroicon-o-plus'),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getPages(): array
@@ -234,6 +275,12 @@ class ResidentResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
+        // ✅ التحقق من وجود المستخدم
+        $admin = auth()->user();
+        if (!$admin) {
+            return null;
+        }
+
         $count = static::getEloquentQuery()->where('is_active', true)->count();
         return $count > 0 ? (string) $count : null;
     }
@@ -246,6 +293,10 @@ class ResidentResource extends Resource
     public static function canCreate(): bool
     {
         $admin = auth()->user();
+        // ✅ التحقق من وجود Admin
+        if (!$admin) {
+            return false;
+        }
         return $admin->canAddResident();
     }
 }

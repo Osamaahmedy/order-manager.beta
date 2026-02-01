@@ -20,7 +20,11 @@ class UserResource extends Resource
     protected static ?string $model = \App\Models\User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user';
-protected static ?string $navigationLabel = 'المشرفين';
+    protected static ?string $navigationLabel = 'الادمن';
+    protected static ?int $navigationSort = 1;
+    protected static ?string $navigationGroup = 'إدارة حسابات النظام';
+
+
 
     public static function form(Form $form): Form
     {
@@ -46,10 +50,7 @@ protected static ?string $navigationLabel = 'المشرفين';
                 ->preload()
                 ->label('Roles'),
 
-            Select::make('departments')
-                ->multiple()
-                ->relationship('departments', 'name')
-                ->label('Departments'),
+
         ]);
     }
 

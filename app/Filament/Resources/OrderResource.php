@@ -6,6 +6,7 @@ use App\Filament\Resources\OrderResource\Pages;
 use App\Models\Branch;
 use App\Models\Order;
 use App\Models\Resident;
+use App\Models\Admin;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -15,6 +16,7 @@ use Filament\Tables\Table;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Illuminate\Database\Eloquent\Builder;
 
+use Illuminate\Database\Eloquent\Model;
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
@@ -23,6 +25,9 @@ class OrderResource extends Resource
     protected static ?string $navigationLabel = 'الطلبات';
     protected static ?string $modelLabel = 'طلب';
     protected static ?string $pluralModelLabel = 'الطلبات';
+    protected static ?int $navigationSort = 5;
+    protected static ?string $navigationGroup = 'إدارة مشتركين النظام';
+
 
     public static function form(Form $form): Form
     {
@@ -30,6 +35,7 @@ class OrderResource extends Resource
             Forms\Components\Tabs::make('OrderTabs')
                 ->persistTabInQueryString()
                 ->tabs([
+                    // ✅ Tab 1: معلومات الطلب
                     Forms\Components\Tabs\Tab::make('معلومات الطلب')
                         ->icon('heroicon-m-document-text')
                         ->schema([
@@ -62,7 +68,7 @@ class OrderResource extends Resource
                                         ->hint('ابحث بالاسم')
                                         ->hintIcon('heroicon-m-magnifying-glass')
                                         ->afterStateUpdated(function ($state, callable $set) {
-                                            if (! $state) return;
+                                            if (!$state) return;
 
                                             $resident = Resident::find($state);
                                             if ($resident) {
@@ -79,6 +85,20 @@ class OrderResource extends Resource
                                         ->hint('Auto')
                                         ->hintIcon('heroicon-m-sparkles'),
 
+                                    Forms\Components\Select::make('delivery_app_id')
+                                        ->label('تطبيق التوصيل')
+                                        ->relationship('deliveryApp', 'name')
+                                        ->searchable()
+                                        ->preload()
+                                        ->nullable()
+                                        ->createOptionForm([
+                                            Forms\Components\TextInput::make('name')
+                                                ->label('اسم التطبيق')
+                                                ->required()
+                                                ->maxLength(255),
+                                        ])
+                                        ->hint('اختياري')
+                                        ->hintIcon('heroicon-m-truck'),
 
                                     Forms\Components\DateTimePicker::make('submitted_at')
                                         ->label('تاريخ الإرسال')
@@ -99,6 +119,68 @@ class OrderResource extends Resource
                                 ]),
                         ]),
 
+                    // ✅ Tab 2: معلومات المنشئ
+                    Forms\Components\Tabs\Tab::make('معلومات المنشئ')
+                        ->icon('heroicon-m-user')
+                        ->schema([
+                            Forms\Components\Section::make()
+                                ->schema([
+                                    Forms\Components\Placeholder::make('created_by_info')
+                                        ->label('')
+                                        ->content(function ($record) {
+                                            if (!$record || !$record->created_by_type) {
+                                                return new \Illuminate\Support\HtmlString(
+                                                    '<div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg text-center">
+                                                        <span class="text-gray-500 dark:text-gray-400">لا توجد معلومات عن المنشئ</span>
+                                                    </div>'
+                                                );
+                                            }
+
+                                            $isAdmin = $record->created_by_type === Admin::class;
+                                            $creator = null;
+
+                                            if ($isAdmin) {
+                                                $creator = Admin::find($record->created_by_id);
+                                                $type = '👤 مسؤول';
+                                                $icon = '🔑';
+                                            } else {
+                                                $creator = Resident::find($record->created_by_id);
+                                                $type = '👥 مقيم';
+                                                $icon = '📱';
+                                            }
+
+                                            if (!$creator) {
+                                                return 'غير معروف';
+                                            }
+
+                                            return new \Illuminate\Support\HtmlString(
+                                                '<div class="space-y-2 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="text-2xl">' . $icon . '</span>
+                                                        <div>
+                                                            <div class="text-sm font-medium text-gray-500 dark:text-gray-400">تم الإنشاء بواسطة</div>
+                                                            <div class="text-lg font-bold text-gray-900 dark:text-white">' . e($creator->name) . '</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
+                                                        <span class="inline-flex items-center gap-1">
+                                                            <span>الصنف:</span>
+                                                            <span class="font-semibold">' . $type . '</span>
+                                                        </span>
+                                                        ' . ($isAdmin
+                                                            ? '<span>📧 ' . e($creator->email ?? '') . '</span>'
+                                                            : '<span>📞 ' . e($creator->phone ?? '') . '</span>'
+                                                        ) . '
+                                                    </div>
+                                                </div>'
+                                            );
+                                        })
+                                        ->columnSpanFull(),
+                                ]),
+                        ])
+                        ->visible(fn($record) => $record && $record->created_by_type),
+
+                    // ✅ Tab 3: الصور
                     Forms\Components\Tabs\Tab::make('الصور')
                         ->icon('heroicon-m-photo')
                         ->schema([
@@ -121,6 +203,28 @@ class OrderResource extends Resource
                                         ->panelLayout('grid')
                                         ->helperText('يمكنك رفع حتى 10 صور')
                                         ->hint('JPG/PNG')
+                                        ->hintIcon('heroicon-m-information-circle'),
+                                ]),
+                        ]),
+
+                    // ✅ Tab 4: الفيديو
+                    Forms\Components\Tabs\Tab::make('الفيديو')
+                        ->icon('heroicon-m-video-camera')
+                        ->schema([
+                            Forms\Components\Section::make('فيديو الطلب')
+                                ->description('يمكن رفع ملف فيديو واحد (حد أقصى 100 ميجابايت)')
+                                ->icon('heroicon-m-film')
+                                ->compact()
+                                ->schema([
+                                    SpatieMediaLibraryFileUpload::make('videos')
+                                        ->collection('videos')
+                                        ->label('فيديو الطلب')
+                                        ->acceptedFileTypes(['video/mp4', 'video/mpeg', 'video/quicktime', 'video/x-msvideo', 'video/webm'])
+                                        ->maxSize(102400) // 100 ميجابايت
+                                        ->downloadable()
+                                        ->openable()
+                                        ->helperText('صيغ مدعومة: MP4, MOV, AVI, WEBM')
+                                        ->hint('حد أقصى 100MB')
                                         ->hintIcon('heroicon-m-information-circle'),
                                 ]),
                         ]),
@@ -155,14 +259,56 @@ class OrderResource extends Resource
                     ->color('info')
                     ->weight(FontWeight::Bold),
 
-                // ✅ Resident
+                // ✅ المنشئ
+                Tables\Columns\TextColumn::make('created_by_type')
+                    ->label('المنشئ')
+                    ->formatStateUsing(function ($record) {
+                        if (!$record->created_by_type) {
+                            return '—';
+                        }
+
+                        $isAdmin = $record->created_by_type === Admin::class;
+
+                        if ($isAdmin) {
+                            $creator = Admin::find($record->created_by_id);
+                            return $creator ? '👤 ' . $creator->name : '—';
+                        } else {
+                            $creator = Resident::find($record->created_by_id);
+                            return $creator ? '👥 ' . $creator->name : '—';
+                        }
+                    })
+                    ->badge()
+                    ->color(fn($record) =>
+                        $record->created_by_type === Admin::class ? 'warning' : 'info'
+                    )
+                    ->searchable(false)
+                    ->sortable(false)
+                    ->toggleable(),
+
+                // ✅ صنف المنشئ
+                Tables\Columns\IconColumn::make('is_admin_created')
+                    ->label('صنف')
+                    ->getStateUsing(fn($record) => $record->created_by_type === Admin::class)
+                    ->boolean()
+                    ->trueIcon('heroicon-o-shield-check')
+                    ->falseIcon('heroicon-o-user')
+                    ->trueColor('warning')
+                    ->falseColor('info')
+                    ->tooltip(fn($record) =>
+                        $record->created_by_type === Admin::class ? 'مسؤول' : 'مقيم'
+                    )
+                    ->alignCenter()
+                    ->toggleable(),
+
+                // ✅ المقيم
                 Tables\Columns\TextColumn::make('resident.name')
                     ->label('المقيم')
                     ->searchable()
                     ->sortable()
+                    ->badge()
                     ->icon('heroicon-m-user')
-                    ->limit(22)
-                    ->tooltip(fn ($record) => $record->resident?->name),
+                    ->color('gray')
+                    ->placeholder('—'),
 
                 // ✅ Branch
                 Tables\Columns\TextColumn::make('branch.name')
@@ -173,13 +319,36 @@ class OrderResource extends Resource
                     ->icon('heroicon-m-building-office-2')
                     ->color('success'),
 
+                // ✅ Delivery App
+                Tables\Columns\TextColumn::make('deliveryApp.name')
+                    ->label('تطبيق التوصيل')
+                    ->searchable()
+                    ->sortable()
+                    ->icon('heroicon-m-truck')
+                    ->badge()
+                    ->color('warning')
+                    ->placeholder('—'),
 
+                // ✅ Images
                 Tables\Columns\SpatieMediaLibraryImageColumn::make('images')
                     ->label('الصور')
                     ->collection('images')
                     ->circular()
                     ->stacked()
-                    ->limit(3),
+                    ->limit(3)
+                    ->ring(2)
+                    ->overlap(4),
+
+                // ✅ Video indicator
+                Tables\Columns\IconColumn::make('has_video')
+                    ->label('فيديو')
+                    ->getStateUsing(fn($record) => $record->getMedia('videos')->count() > 0)
+                    ->boolean()
+                    ->trueIcon('heroicon-o-video-camera')
+                    ->falseIcon('heroicon-o-video-camera-slash')
+                    ->trueColor('success')
+                    ->falseColor('gray')
+                    ->alignCenter(),
 
                 Tables\Columns\TextColumn::make('submitted_at')
                     ->label('الإرسال')
@@ -194,6 +363,15 @@ class OrderResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                // ✅ فلتر صنف المنشئ
+                Tables\Filters\SelectFilter::make('created_by_type')
+                    ->label('صنف المنشئ')
+                    ->options([
+                        Admin::class => '👤 مسؤول',
+                        Resident::class => '👥 مقيم',
+                    ])
+                    ->placeholder('الكل'),
+
                 // ✅ Branch filter
                 Tables\Filters\SelectFilter::make('branch_id')
                     ->label('الفرع')
@@ -201,45 +379,62 @@ class OrderResource extends Resource
                     ->searchable()
                     ->preload(),
 
-                // ✅ Status filter
-                Tables\Filters\SelectFilter::make('status')
-                    ->label('الحالة')
-                    ->options([
-                        'pending'  => 'قيد الانتظار',
-                        'approved' => 'مقبول',
-                        'rejected' => 'مرفوض',
-                        'done'     => 'مكتمل',
-                    ]),
+                // ✅ Delivery App filter
+                Tables\Filters\SelectFilter::make('delivery_app_id')
+                    ->label('تطبيق التوصيل')
+                    ->relationship('deliveryApp', 'name')
+                    ->searchable()
+                    ->preload(),
+
+                // ✅ Has Video filter
+                Tables\Filters\TernaryFilter::make('has_video')
+                    ->label('يحتوي على فيديو')
+                    ->queries(
+                        true: fn($query) => $query->whereHas('media', fn($q) => $q->where('collection_name', 'videos')),
+                        false: fn($query) => $query->whereDoesntHave('media', fn($q) => $q->where('collection_name', 'videos')),
+                    ),
             ])
             ->actions([
-    Tables\Actions\ViewAction::make()
-        ->label('عرض')
-        ->icon('heroicon-m-eye')
-        ->color('gray')
-        ->extraAttributes([
-            'class' =>
-                'transition-all duration-200 ' .
-                'hover:-translate-y-0.5 hover:shadow-md ' .
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400',
-        ]),
+                Tables\Actions\ViewAction::make()
+                    ->label('عرض')
+                    ->icon('heroicon-m-eye')
+                    ->color('gray')
+                    ->extraAttributes([
+                        'class' =>
+                            'transition-all duration-200 ' .
+                            'hover:-translate-y-0.5 hover:shadow-md ' .
+                            'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400',
+                    ]),
 
-    Tables\Actions\EditAction::make()
-        ->label('تعديل')
-        ->icon('heroicon-m-pencil-square')
-        ->color('primary')
-        ->extraAttributes([
-            'class' =>
-                'transition-all duration-200 ' .
-                'hover:-translate-y-0.5 hover:shadow-md ' .
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400',
-        ]),
-])
-
+                Tables\Actions\EditAction::make()
+                    ->label('تعديل')
+                    ->icon('heroicon-m-pencil-square')
+                    ->color('primary')
+                    ->extraAttributes([
+                        'class' =>
+                            'transition-all duration-200 ' .
+                            'hover:-translate-y-0.5 hover:shadow-md ' .
+                            'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400',
+                    ]),
+            ])
             ->emptyStateHeading('لا توجد طلبات')
             ->emptyStateDescription('جرّب تغيير الفلاتر أو إضافة طلب جديد.')
             ->emptyStateIcon('heroicon-m-inbox')
             ->defaultSort('submitted_at', 'desc');
     }
+     public static function canViewAny(): bool
+    {
+        return auth()->user()?->can('view orders') ?? false;
+    }
+
+
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()?->can('update orders') ?? false;
+    }
+
+
 
     public static function getPages(): array
     {

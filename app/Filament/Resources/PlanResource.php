@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class PlanResource extends Resource
 {
@@ -58,18 +59,10 @@ class PlanResource extends Resource
                             ->options([
                                 'monthly' => 'شهري',
                                 'yearly' => 'سنوي',
-                                'lifetime' => 'مدى الحياة',
                             ])
                             ->required()
                             ->default('monthly'),
 
-                        Forms\Components\TextInput::make('trial_days')
-                            ->label('أيام التجربة المجانية')
-                            ->numeric()
-                            ->default(0)
-                            ->minValue(0)
-                            ->suffix('يوم')
-                            ->helperText('صفر = بدون فترة تجريبية'),
 
                         Forms\Components\Toggle::make('is_active')
                             ->label('نشط')
@@ -78,47 +71,8 @@ class PlanResource extends Resource
                     ])
                     ->columns(2),
 
-                Forms\Components\Section::make('الحدود والقيود')
-                    ->description('اترك الحقل فارغاً لعدد غير محدود')
-                    ->schema([
-                        Forms\Components\TextInput::make('max_branches')
-                            ->label('الحد الأقصى للفروع')
-                            ->numeric()
-                            ->minValue(1)
-                            ->suffix('فرع')
-                            ->placeholder('∞ غير محدود'),
 
-                        Forms\Components\TextInput::make('max_residents')
-                            ->label('الحد الأقصى للمقيمين')
-                            ->numeric()
-                            ->minValue(1)
-                            ->suffix('مقيم')
-                            ->placeholder('∞ غير محدود'),
 
-                        Forms\Components\TextInput::make('max_orders_per_month')
-                            ->label('الحد الأقصى للطلبات شهرياً')
-                            ->numeric()
-                            ->minValue(1)
-                            ->suffix('طلب/شهر')
-                            ->placeholder('∞ غير محدود'),
-                    ])
-                    ->columns(3),
-
-                Forms\Components\Section::make('المميزات الإضافية')
-                    ->schema([
-                        Forms\Components\TagsInput::make('features')
-                            ->label('قائمة المميزات')
-                            ->placeholder('اكتب ميزة واضغط Enter')
-                            ->helperText('مثل: تقارير متقدمة، دعم فني 24/7، API Access')
-                            ->suggestions([
-                                'تقارير متقدمة',
-                                'دعم فني 24/7',
-                                'API Access',
-                                'نسخ احتياطي يومي',
-                                'تصدير البيانات',
-                                'تكامل مع الأنظمة الخارجية',
-                            ]),
-                    ]),
             ]);
     }
 
@@ -143,35 +97,18 @@ class PlanResource extends Resource
                     ->label('الفترة')
                     ->colors([
                         'success' => 'monthly',
-                        'warning' => 'yearly',
-                        'primary' => 'lifetime',
-                    ])
+                        'primary' => 'yearly',
+                   ])
                     ->formatStateUsing(fn ($state) => match($state) {
                         'monthly' => 'شهري',
                         'yearly' => 'سنوي',
-                        'lifetime' => 'مدى الحياة',
                         default => $state,
                     })
                     ->alignCenter(),
 
-                Tables\Columns\TextColumn::make('max_branches')
-                    ->label('الفروع')
-                    ->default('∞')
-                    ->alignCenter()
-                    ->color('info'),
 
-                Tables\Columns\TextColumn::make('max_residents')
-                    ->label('المقيمين')
-                    ->default('∞')
-                    ->alignCenter()
-                    ->color('info'),
 
-                Tables\Columns\TextColumn::make('max_orders_per_month')
-                    ->label('الطلبات/شهر')
-                    ->default('∞')
-                    ->alignCenter()
-                    ->color('info')
-                    ->toggleable(isToggledHiddenByDefault: true),
+
 
                 Tables\Columns\TextColumn::make('trial_days')
                     ->label('التجربة المجانية')
@@ -210,7 +147,6 @@ class PlanResource extends Resource
                     ->options([
                         'monthly' => 'شهري',
                         'yearly' => 'سنوي',
-                        'lifetime' => 'مدى الحياة',
                     ]),
             ])
             ->actions([
@@ -251,7 +187,25 @@ class PlanResource extends Resource
             //
         ];
     }
+public static function canViewAny(): bool
+    {
+        return auth()->user()?->can('view plans') ?? false;
+    }
 
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->can('create plans') ?? false;
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()?->can('update plans') ?? false;
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()?->can('delete plans') ?? false;
+    }
     public static function getPages(): array
     {
         return [

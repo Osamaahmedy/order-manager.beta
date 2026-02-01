@@ -4,96 +4,98 @@ namespace App\Filament\Widgets;
 
 use App\Models\Order;
 use App\Models\User;
-// إذا عندك موديل Resident استخدمه بدل User
-// use App\Models\Resident;
-
-use Carbon\Carbon;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class DashboardStats extends StatsOverviewWidget
 {
-protected function getStats(): array
-{
-// Revenue مثال: نجمع عدد الطلبات بدل مبلغ (لأن Order ما فيه price عندك)
-$ordersThisMonth = Order::query()
-->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
-->count();
+    protected function getStats(): array
+    {
+        // حسابات الطلبات
+        $ordersThisMonth = Order::whereMonth('created_at', now()->month)->count();
+        $ordersLastMonth = Order::whereMonth('created_at', now()->subMonth()->month)->count();
+        $ordersChange = $this->calculateChange($ordersThisMonth, $ordersLastMonth);
 
-$ordersLastMonth = Order::query()
-->whereBetween('created_at', [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()])
-->count();
+        // حسابات العملاء
+        $customersThisMonth = User::whereMonth('created_at', now()->month)->count();
+        $customersLastMonth = User::whereMonth('created_at', now()->subMonth()->month)->count();
+        $customersChange = $this->calculateChange($customersThisMonth, $customersLastMonth);
 
-$ordersChange = $ordersLastMonth > 0
-? round((($ordersThisMonth - $ordersLastMonth) / $ordersLastMonth) * 100, 1)
-: null;
+        return [
+            // بطاقة الطلبات - بنفسجي نيون
+            Stat::make('الطلبات (هذا الشهر)', number_format($ordersThisMonth))
+                ->description($ordersChange >= 0 ? "↗ {$ordersChange}% بونص أداء" : "↘ {$ordersChange}% تراجع")
+                ->descriptionIcon($ordersChange >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
+                ->color($ordersChange >= 0 ? 'success' : 'danger')
+                ->chart($this->countPerDay(Order::class))
+                ->extraAttributes([
+                    'style' => '
+                        background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
+                        border: 1px solid rgba(99, 102, 241, 0.2);
+                        border-radius: 24px;
+                        transition: all 0.3s ease;
+                    ',
+                    'onmouseover' => 'this.style.transform="translateY(-5px)"; this.style.boxShadow="0 10px 20px rgba(99, 102, 241, 0.2)"',
+                    'onmouseout' => 'this.style.transform="translateY(0)"; this.style.boxShadow="none"',
+                ]),
 
-// Customers: اختر اللي عندك (User أو Resident)
-$customersThisMonth = User::query()
-->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
-->count();
+            // بطاقة العملاء - أخضر زمردي
+            Stat::make('العملاء الجدد', number_format($customersThisMonth))
+                ->description($customersChange >= 0 ? "↗ {$customersChange}% نمو حيوي" : "↘ {$customersChange}% انخفاض")
+                ->descriptionIcon($customersChange >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
+                ->color($customersChange >= 0 ? 'success' : 'danger')
+                ->chart($this->countPerDay(User::class))
+                ->extraAttributes([
+                    'style' => '
+                        background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.15));
+                        border: 1px solid rgba(16, 185, 129, 0.2);
+                        border-radius: 24px;
+                        transition: all 0.3s ease;
+                    ',
+                    'onmouseover' => 'this.style.transform="translateY(-5px)"; this.style.boxShadow="0 10px 20px rgba(16, 185, 129, 0.2)"',
+                    'onmouseout' => 'this.style.transform="translateY(0)"; this.style.boxShadow="none"',
+                ]),
 
-$customersLastMonth = User::query()
-->whereBetween('created_at', [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()])
-->count();
+            // بطاقة النشاط - برتقالي ذهبي
+            Stat::make('نشاط النظام', 'مستقر')
+                ->description('تفاعل لحظي ممتاز')
+                ->descriptionIcon('heroicon-m-bolt')
+                ->color('warning')
+                ->chart([7, 4, 8, 5, 9, 6, 10])
+                ->extraAttributes([
+                    'style' => '
+                        background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(234, 88, 12, 0.15));
+                        border: 1px solid rgba(245, 158, 11, 0.2);
+                        border-radius: 24px;
+                        transition: all 0.3s ease;
+                    ',
+                    'onmouseover' => 'this.style.transform="translateY(-5px)"; this.style.boxShadow="0 10px 20px rgba(245, 158, 11, 0.2)"',
+                    'onmouseout' => 'this.style.transform="translateY(0)"; this.style.boxShadow="none"',
+                ]),
+        ];
+    }
 
-$customersChange = $customersLastMonth > 0
-? round((($customersThisMonth - $customersLastMonth) / $customersLastMonth) * 100, 1)
-: null;
+    private function calculateChange($current, $previous): float|int
+    {
+        if ($previous == 0) return $current > 0 ? 100 : 0;
+        return round((($current - $previous) / $previous) * 100, 1);
+    }
 
-// New orders (آخر 30 يوم)
-$newOrders30 = Order::query()
-->where('created_at', '>=', now()->subDays(30))
-->count();
+    private function countPerDay(string $modelClass): array
+    {
+        $start = now()->subDays(11)->startOfDay();
+        $rows = $modelClass::query()
+            ->selectRaw("DATE(created_at) as d, COUNT(*) as c")
+            ->where('created_at', '>=', $start)
+            ->groupBy('d')
+            ->pluck('c', 'd')
+            ->toArray();
 
-// Sparkline data (آخر 12 يوم/أسبوع)
-$ordersSpark = $this->countPerDay(Order::class, 12);
-
-$customersSpark = $this->countPerDay(User::class, 12);
-
-$newOrdersSpark = $this->countPerDay(Order::class, 12, column: 'created_at');
-
-return [
-Stat::make('Orders (This month)', number_format($ordersThisMonth))
-->description($ordersChange === null ? 'No data last month' : ($ordersChange >= 0 ? "+{$ordersChange}%" : "{$ordersChange}%"))
-->descriptionIcon($ordersChange !== null && $ordersChange >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
-->color($ordersChange !== null && $ordersChange < 0 ? 'danger' : 'success')
-->chart($ordersSpark),
-
-Stat::make('New customers (This month)', number_format($customersThisMonth))
-->description($customersChange === null ? 'No data last month' : ($customersChange >= 0 ? "+{$customersChange}%" : "{$customersChange}%"))
-->descriptionIcon($customersChange !== null && $customersChange >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
-->color($customersChange !== null && $customersChange < 0 ? 'danger' : 'success')
-->chart($customersSpark),
-
-Stat::make('New orders (30 days)', number_format($newOrders30))
-->description('Last 30 days')
-->color('primary')
-->chart($newOrdersSpark),
-];
-}
-
-/**
-* يرجّع Array أرقام لسباركلاين (عدد سجلات لكل يوم)
-*/
-private function countPerDay(string $modelClass, int $days = 12, string $column = 'created_at'): array
-{
-$start = now()->subDays($days - 1)->startOfDay();
-
-$rows = $modelClass::query()
-->selectRaw("DATE($column) as d, COUNT(*) as c")
-->where($column, '>=', $start)
-->groupBy('d')
-->orderBy('d')
-->pluck('c', 'd')
-->toArray();
-
-$out = [];
-for ($i = 0; $i < $days; $i++) {
-$day = now()->subDays(($days - 1) - $i)->toDateString();
-$out[] = (int) ($rows[$day] ?? 0);
-}
-
-return $out;
-}
+        $out = [];
+        for ($i = 0; $i < 12; $i++) {
+            $day = now()->subDays(11 - $i)->toDateString();
+            $out[] = (int) ($rows[$day] ?? 0);
+        }
+        return $out;
+    }
 }

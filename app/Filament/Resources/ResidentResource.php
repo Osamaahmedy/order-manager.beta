@@ -24,6 +24,9 @@ class ResidentResource extends Resource
     protected static ?string $modelLabel = 'مقيم';
 
     protected static ?string $pluralModelLabel = 'المقيمين';
+    protected static ?int $navigationSort = 3;
+    protected static ?string $navigationGroup = 'إدارة مشتركين النظام';
+
 
     public static function form(Form $form): Form
     {
@@ -65,8 +68,7 @@ class ResidentResource extends Resource
                             ->required()
                             ->searchable()
                             ->preload()
-                            ->unique(ignoreRecord: true)
-                            ->helperText('كل قسم يمكن أن يكون له مقيم واحد فقط'),
+
                     ])
                     ->columns(2),
             ]);
@@ -116,7 +118,7 @@ class ResidentResource extends Resource
                 ]),
             ]);
     }
-public static function canViewAny(): bool
+    public static function canViewAny(): bool
     {
         return auth()->user()?->can('view Resident') ?? false;
     }

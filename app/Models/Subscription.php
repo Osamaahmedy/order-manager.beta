@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 
 class Subscription extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes ;
 
     protected $fillable = [
         'admin_id',
@@ -225,4 +225,5 @@ class Subscription extends Model
 
         event(new \App\Events\SubscriptionResumed($this));
     }
+
 }

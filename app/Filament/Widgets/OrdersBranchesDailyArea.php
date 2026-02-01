@@ -11,16 +11,16 @@ class OrdersBranchesDailyArea extends ChartWidget
 {
     use InteractsWithPageFilters;
 
-    protected static ?string $heading = 'Top branches (Last 14 days)';
+    protected static ?string $heading = 'أداء أفضل الفروع خلال آخر 14 يوم';
     protected int|string|array $columnSpan = 1;
-    protected static ?string $maxHeight = '340px';
+    protected static ?string $maxHeight = '420px'; // تكبير الارتفاع
 
     protected function getData(): array
     {
         $days = 14;
         $start = now()->subDays($days - 1)->startOfDay();
 
-        // ✅ أعلى 3 فروع في الفترة (لجراف نظيف)
+        // أعلى 3 فروع
         $topBranchIds = Order::query()
             ->where('created_at', '>=', $start)
             ->selectRaw('branch_id, COUNT(*) as c')
@@ -35,22 +35,38 @@ class OrdersBranchesDailyArea extends ChartWidget
             $labels[] = now()->subDays(($days - 1) - $i)->format('M d');
         }
 
-        $branchNames = Branch::query()->whereIn('id', $topBranchIds)->pluck('name', 'id')->toArray();
+        $branchNames = Branch::query()
+            ->whereIn('id', $topBranchIds)
+            ->pluck('name', 'id')
+            ->toArray();
+
+        // Palette ألوان احترافية
+        $colors = [
+            ['line' => '#6366f1', 'bg' => 'rgba(99,102,241,0.18)'], // Indigo
+            ['line' => '#10b981', 'bg' => 'rgba(16,185,129,0.18)'], // Emerald
+            ['line' => '#f59e0b', 'bg' => 'rgba(245,158,11,0.18)'], // Amber
+        ];
 
         $datasets = [];
-        foreach ($topBranchIds as $branchId) {
+        foreach ($topBranchIds as $index => $branchId) {
             $values = $this->countPerDay(
                 Order::query()->where('branch_id', $branchId),
                 $days
             )[1];
 
+            $color = $colors[$index] ?? ['line' => '#64748b', 'bg' => 'rgba(100,116,139,0.15)'];
+
             $datasets[] = [
                 'label' => $branchNames[$branchId] ?? "Branch #{$branchId}",
                 'data' => $values,
-                'fill' => false,
-                'tension' => 0.4,
-                'borderWidth' => 2,
-                'pointRadius' => 0,
+                'type' => 'line',
+                'fill' => true, // Area chart
+                'tension' => 0.45,
+                'borderColor' => $color['line'],
+                'backgroundColor' => $color['bg'],
+                'borderWidth' => 3,
+                'pointRadius' => 2,
+                'pointBackgroundColor' => $color['line'],
                 'pointHoverRadius' => 6,
                 'pointHitRadius' => 20,
             ];
@@ -72,20 +88,56 @@ class OrdersBranchesDailyArea extends ChartWidget
         return [
             'responsive' => true,
             'maintainAspectRatio' => false,
+
             'plugins' => [
-                'legend' => ['position' => 'bottom'],
+                'legend' => [
+                    'position' => 'top',
+                    'labels' => [
+                        'usePointStyle' => true,
+                        'color' => '#64748b',
+                        'font' => [
+                            'size' => 12,
+                            'weight' => '600',
+                        ],
+                    ],
+                ],
                 'tooltip' => [
-                    'enabled' => true,
                     'mode' => 'index',
                     'intersect' => false,
+                    'backgroundColor' => 'rgba(15,23,42,0.95)',
                     'padding' => 12,
+                    'borderRadius' => 10,
                 ],
             ],
-            'interaction' => ['mode' => 'index', 'intersect' => false],
-            'hover' => ['mode' => 'index', 'intersect' => false],
+
+            'interaction' => [
+                'mode' => 'index',
+                'intersect' => false,
+            ],
+
             'scales' => [
-                'x' => ['grid' => ['display' => false]],
-                'y' => ['beginAtZero' => true, 'ticks' => ['precision' => 0]],
+                'x' => [
+                    'grid' => ['display' => false],
+                    'ticks' => [
+                        'color' => '#64748b',
+                    ],
+                ],
+                'y' => [
+                    'beginAtZero' => true,
+                    'grid' => [
+                        'color' => 'rgba(148,163,184,0.08)',
+                        'drawBorder' => false,
+                    ],
+                    'ticks' => [
+                        'precision' => 0,
+                        'color' => '#64748b',
+                    ],
+                ],
+            ],
+
+            'animation' => [
+                'duration' => 1600,
+                'easing' => 'easeOutQuart',
             ],
         ];
     }
@@ -114,5 +166,12 @@ class OrdersBranchesDailyArea extends ChartWidget
         }
 
         return [$labels, $values];
+    }
+
+    protected function getExtraAttributes(): array
+    {
+        return [
+            'class' => 'rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all p-4',
+        ];
     }
 }

@@ -63,86 +63,7 @@
             📅 فترة الاشتراك
         </h3>
 
-        <div class="space-y-4">
-            @if($subscription->onTrial())
-                {{-- الفترة التجريبية --}}
-                <div class="p-4 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="text-xl">🎁</span>
-                        <span class="font-semibold text-purple-900 dark:text-purple-200">الفترة التجريبية</span>
-                    </div>
 
-                    <div class="space-y-2">
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-purple-700 dark:text-purple-300">تاريخ البدء:</span>
-                            <span class="text-sm font-medium text-purple-900 dark:text-purple-100">{{ $subscription->starts_at->format('Y-m-d') }}</span>
-                        </div>
-
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-purple-700 dark:text-purple-300">تاريخ الانتهاء:</span>
-                            <span class="text-sm font-medium text-purple-900 dark:text-purple-100">{{ $subscription->trial_ends_at->format('Y-m-d') }}</span>
-                        </div>
-
-                        <div class="flex justify-between items-center pt-2 border-t border-purple-200 dark:border-purple-800">
-                            <span class="text-sm font-semibold text-purple-700 dark:text-purple-300">الأيام المتبقية:</span>
-                            @php
-                                $days = $subscription->daysRemaining();
-                            @endphp
-                            <span class="text-sm font-bold text-purple-900 dark:text-purple-100">
-                                @if($days > 0)
-                                    {{ $days }} يوم
-                                @else
-                                    منتهية
-                                @endif
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            @endif
-
-            {{-- الاشتراك الفعلي --}}
-            <div class="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-                <div class="flex items-center gap-2 mb-3">
-                    <span class="text-xl">📅</span>
-                    <span class="font-semibold text-blue-900 dark:text-blue-200">الاشتراك الفعلي</span>
-                </div>
-
-                <div class="space-y-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-blue-700 dark:text-blue-300">تاريخ البدء:</span>
-                        <span class="text-sm font-medium text-blue-900 dark:text-blue-100">
-                            {{ $subscription->onTrial() && $subscription->trial_ends_at ? $subscription->trial_ends_at->format('Y-m-d') : $subscription->starts_at->format('Y-m-d') }}
-                        </span>
-                    </div>
-
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-blue-700 dark:text-blue-300">تاريخ الانتهاء:</span>
-                        <span class="text-sm font-medium text-blue-900 dark:text-blue-100">
-                            {{ $subscription->ends_at ? $subscription->ends_at->format('Y-m-d') : '∞ مدى الحياة' }}
-                        </span>
-                    </div>
-
-                    @if($subscription->ends_at && !$subscription->onTrial())
-                        <div class="flex justify-between items-center pt-2 border-t border-blue-200 dark:border-blue-800">
-                            <span class="text-sm font-semibold text-blue-700 dark:text-blue-300">الأيام المتبقية:</span>
-                            @php
-                                $days = $subscription->daysRemaining();
-                                $colorClass = $days <= 7 ? 'text-red-600' : ($days <= 30 ? 'text-yellow-600' : 'text-green-600');
-                            @endphp
-                            <span class="text-sm font-bold {{ $colorClass }}">
-                                @if($days === -1)
-                                    غير محدود
-                                @elseif($days > 0)
-                                    {{ $days }} يوم
-                                @else
-                                    منتهي
-                                @endif
-                            </span>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
     </div>
 
     {{-- استخدام الموارد --}}
