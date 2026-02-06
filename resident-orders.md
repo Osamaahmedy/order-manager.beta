@@ -421,3 +421,48 @@ THE DATA
     }
 }
 ````
+
+# orders/{id}
+
+**http://127.0.0.1:8000/api/resident/orders/{id}**
+
+````
+{
+    "success": true,
+    "order": {
+        "id": 41,
+        "order_number": "ORD-2026-000041",
+        "number": "1212",
+        "notes": null,
+        "submitted_at": "2026-02-01 14:38",
+        "branch": {
+            "id": 1,
+            "name": "اثار",
+            "location": "لحج - صبر"
+        },
+        "delivery_app": {
+            "id": 1,
+            "name": "كاريند"
+        },
+        "images": [
+            {
+                "id": 101,
+                "name": "Screenshot-from-2025-07-11-17-31-06.png",
+                "url": "http://127.0.0.1:8000/storage/101/Screenshot-from-2025-07-11-17-31-06.png",
+                "size": "300.42 KB",
+                "mime_type": "image/png",
+                "created_at": "2026-02-01 14:38"
+            },
+            {
+                "id": 102,
+                "name": "Screenshot-from-2025-07-11-21-07-27.png",
+                "url": "http://127.0.0.1:8000/storage/102/Screenshot-from-2025-07-11-21-07-27.png",
+                "size": "109.26 KB",
+                "mime_type": "image/png",
+                "created_at": "2026-02-01 14:38"
+            }
+        ],
+        "videos": []
+    }
+}
+````

@@ -6,9 +6,11 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\AdminOrderController;
 use App\Http\Controllers\Api\SubscriptionRenewalController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\SliderController;
 
 // ==================== Admin API Routes ====================
         Route::get('available-delivery-apps', [OrderController::class, 'availableDeliveryApps']);
+        Route::get('sliders', [SliderController::class, 'index']);
 
 Route::prefix('admin')->group(function () {
     // Login (Public)
@@ -51,7 +53,7 @@ Route::prefix('resident')->group(function () {
         // Authentication
         Route::post('logout', [ResidentAuthController::class, 'logout']);
         Route::get('profile', [ResidentAuthController::class, 'profile']);
-        Route::get('branch', [ResidentAuthController::class, 'branch']);
+        Route::get('branch', [ResidentAuthController::class, 'adminBranches']);
 
         // Orders Management
         Route::get('orders', [OrderController::class, 'index']);

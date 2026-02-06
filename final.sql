@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Feb 01, 2026 at 04:23 PM
+-- Generation Time: Feb 06, 2026 at 01:17 PM
 -- Server version: 8.0.44-0ubuntu0.24.04.2
 -- PHP Version: 8.3.6
 
@@ -43,10 +43,10 @@ CREATE TABLE `admins` (
 --
 
 INSERT INTO `admins` (`id`, `name`, `email`, `password`, `phone`, `remember_token`, `created_at`, `updated_at`) VALUES
-(1, 'Osama Ahmed', 'asasa@gmail.come', '$2y$12$LikNGzfEH.HbuQsc9J.xDephi8HogB1A51huCdwoRtdwNnC.Uav16', '0718323599', 'VaK9adt1ZhF3p7WjivAyMfhsF7kQrQZtVyrZ5QC2b3oNHGCRkYLAFAwTB0jg', '2026-01-08 19:10:05', '2026-01-30 08:51:10'),
-(2, 'mgd', 'mgd@gmail.com', '$2y$12$Rvkjevrlm8LSBuaCJtkYruIBWqxKfE2Th6RVkCK.Mng44yqpGNV.S', '123123123', NULL, '2025-12-27 08:44:41', '2026-01-31 06:22:31'),
+(1, 'Osama Ahmed', 'asasa@gmail.come', '$2y$12$7SYq3HyL/XWovmF0XesBEeC2FJ8BYaQ2feQSVhUcJg13E7r2fPpQm', '718323599', 'dKTxrkKAVnKXt8ixNZTsaNuc1fRs1TlapbYjRaunJQBJ4FKeV8PUAwMUl6GV', '2026-01-08 19:10:05', '2026-02-02 11:45:09'),
+(2, 'mgd', 'mgd@gmail.com', '$2y$12$42ZQhoMv4.H9OmBZgIpC6epoxTxEGUPOE/mU9UVhe9enFM6Ec7.V2', '123123123', NULL, '2025-12-27 08:44:41', '2026-02-02 11:07:21'),
 (3, 'Osama Ahmed5', 'asaamk4292@gmail.com', '$2y$12$bGQ1AZOFgs5DY7HEVf8r0eZMJTeV8J8q59sktp9MJXgJ0KT/1M.w.', '04718323599', NULL, '2026-01-29 12:08:31', '2026-01-30 09:09:00'),
-(4, 'اسامه', 'os@gmail.com', '$2y$12$rcM0piCkfQgqDd6vlYlACePPfUK.TDdhIlOwd9A5kBA5Lz4Y.sRa2', '777888666', 'ewhmeM7XwuJQS3uiwjO7sx4bVXbUS5jb6eWpsyb6G2tjdDvYOLQ2my1a2wv5', '2026-01-31 06:11:58', '2026-01-31 06:11:58'),
+(4, 'اسامه', 'os@gmail.com', '$2y$12$EmmbgMel1.UT/ZC8JfFOUOLfcYDYvvUFXUraplrZQOip3D57QAA8m', '777888666', 'ewhmeM7XwuJQS3uiwjO7sx4bVXbUS5jb6eWpsyb6G2tjdDvYOLQ2my1a2wv5', '2026-01-31 06:11:58', '2026-02-02 11:16:28'),
 (5, '8', '8@gmail.com', '$2y$12$NeF6xlbWv2moRMR1wB7Ooe.ynZ2dW2rvhFutgfoMjkI97mG.QF5P2', '07718323599', 'zER4fMRPgo2tOXPX87ntykOdjBbGo5wsVsKE1VMOSWgNNa1jefnMLcnBl3w4', '2026-01-31 07:20:47', '2026-01-31 07:20:47');
 
 -- --------------------------------------------------------
@@ -72,7 +72,8 @@ INSERT INTO `admin_branch` (`id`, `admin_id`, `branch_id`, `created_at`, `update
 (6, 2, 3, '2025-12-27 08:44:41', '2025-12-27 08:44:41'),
 (8, 1, 3, '2026-01-29 12:38:16', '2026-01-29 12:38:16'),
 (9, 1, 4, '2026-01-29 13:05:30', '2026-01-29 13:05:30'),
-(11, 4, 5, '2026-01-31 06:19:07', '2026-01-31 06:19:07');
+(11, 4, 5, '2026-01-31 06:19:07', '2026-01-31 06:19:07'),
+(18, 4, 2, '2026-02-03 09:12:45', '2026-02-03 09:12:45');
 
 -- --------------------------------------------------------
 
@@ -94,11 +95,11 @@ CREATE TABLE `branches` (
 --
 
 INSERT INTO `branches` (`id`, `name`, `location`, `is_active`, `created_at`, `updated_at`) VALUES
-(1, 'اثار', 'لحج - صبر', 1, '2026-01-08 19:09:04', '2026-01-31 05:55:47'),
+(1, 'فرع جدة', 'لحج - صبر', 1, '2026-01-08 19:09:04', '2026-02-02 05:31:18'),
 (2, 'Osama Ahmed', 'عدن - المنصورة', 1, '2025-12-26 19:09:20', '2026-01-29 12:28:46'),
-(3, 'gta', '545', 1, '2025-12-27 08:44:04', '2026-01-31 05:55:47'),
-(4, 'admin', 'س', 1, '2026-01-29 13:05:30', '2026-01-31 05:55:47'),
-(5, 'seven', 'عدن - الشيخ عثمان ', 1, '2026-01-31 06:12:36', '2026-01-31 07:30:49');
+(3, 'فرع الرياض', '545', 1, '2025-12-27 08:44:04', '2026-02-02 05:31:35'),
+(4, 'فرع مكة', 'س', 1, '2026-01-29 13:05:30', '2026-02-02 05:33:12'),
+(5, 'فرع ينبع', 'عدن - الشيخ عثمان ', 1, '2026-01-31 06:12:36', '2026-02-02 05:33:46');
 
 -- --------------------------------------------------------
 
@@ -117,7 +118,13 @@ CREATE TABLE `cache` (
 --
 
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-('laravel_cache_spatie.permission.cache', 'a:3:{s:5:\"alias\";a:4:{s:1:\"a\";s:2:\"id\";s:1:\"b\";s:4:\"name\";s:1:\"c\";s:10:\"guard_name\";s:1:\"r\";s:5:\"roles\";}s:11:\"permissions\";a:38:{i:0;a:4:{s:1:\"a\";i:6;s:1:\"b\";s:10:\"view users\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:1;a:4:{s:1:\"a\";i:7;s:1:\"b\";s:12:\"create users\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:5;}}i:2;a:4:{s:1:\"a\";i:8;s:1:\"b\";s:12:\"update users\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:3;a:4:{s:1:\"a\";i:9;s:1:\"b\";s:12:\"delete users\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:4;a:4:{s:1:\"a\";i:10;s:1:\"b\";s:10:\"view roles\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:5;a:4:{s:1:\"a\";i:11;s:1:\"b\";s:12:\"create roles\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:5;}}i:6;a:4:{s:1:\"a\";i:12;s:1:\"b\";s:12:\"update roles\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:7;a:4:{s:1:\"a\";i:13;s:1:\"b\";s:12:\"delete roles\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:8;a:4:{s:1:\"a\";i:18;s:1:\"b\";s:16:\"view permissions\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:9;a:4:{s:1:\"a\";i:19;s:1:\"b\";s:18:\"create permissions\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:5;}}i:10;a:4:{s:1:\"a\";i:20;s:1:\"b\";s:18:\"update permissions\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:11;a:4:{s:1:\"a\";i:21;s:1:\"b\";s:18:\"delete permissions\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:12;a:4:{s:1:\"a\";i:45;s:1:\"b\";s:10:\"view admin\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:13;a:4:{s:1:\"a\";i:46;s:1:\"b\";s:12:\"create admin\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:14;a:4:{s:1:\"a\";i:47;s:1:\"b\";s:12:\"delete admin\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:15;a:4:{s:1:\"a\";i:48;s:1:\"b\";s:12:\"update admin\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:16;a:4:{s:1:\"a\";i:49;s:1:\"b\";s:11:\"view Branch\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:17;a:4:{s:1:\"a\";i:50;s:1:\"b\";s:13:\"create Branch\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:18;a:4:{s:1:\"a\";i:51;s:1:\"b\";s:13:\"update Branch\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:19;a:4:{s:1:\"a\";i:52;s:1:\"b\";s:13:\"delete Branch\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:20;a:4:{s:1:\"a\";i:53;s:1:\"b\";s:13:\"view Resident\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:21;a:4:{s:1:\"a\";i:54;s:1:\"b\";s:15:\"update Resident\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:22;a:4:{s:1:\"a\";i:55;s:1:\"b\";s:15:\"delete Resident\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:23;a:4:{s:1:\"a\";i:56;s:1:\"b\";s:15:\"create Resident\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:24;a:4:{s:1:\"a\";i:57;s:1:\"b\";s:11:\"view orders\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:25;a:4:{s:1:\"a\";i:58;s:1:\"b\";s:13:\"update orders\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:26;a:4:{s:1:\"a\";i:59;s:1:\"b\";s:18:\"view Delivery Apps\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:27;a:4:{s:1:\"a\";i:60;s:1:\"b\";s:20:\"create Delivery Apps\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:28;a:4:{s:1:\"a\";i:61;s:1:\"b\";s:20:\"delete Delivery Apps\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:29;a:4:{s:1:\"a\";i:62;s:1:\"b\";s:20:\"update Delivery Apps\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:30;a:4:{s:1:\"a\";i:63;s:1:\"b\";s:19:\"create Subscription\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:31;a:4:{s:1:\"a\";i:64;s:1:\"b\";s:19:\"update Subscription\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:32;a:4:{s:1:\"a\";i:65;s:1:\"b\";s:19:\"delete Subscription\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:33;a:4:{s:1:\"a\";i:67;s:1:\"b\";s:17:\"view Subscription\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:34;a:4:{s:1:\"a\";i:68;s:1:\"b\";s:10:\"view plans\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:35;a:4:{s:1:\"a\";i:69;s:1:\"b\";s:12:\"update plans\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:36;a:4:{s:1:\"a\";i:70;s:1:\"b\";s:12:\"delete plans\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:37;a:4:{s:1:\"a\";i:71;s:1:\"b\";s:12:\"create plans\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}}s:5:\"roles\";a:3:{i:0;a:3:{s:1:\"a\";i:1;s:1:\"b\";s:5:\"admin\";s:1:\"c\";s:3:\"web\";}i:1;a:3:{s:1:\"a\";i:3;s:1:\"b\";s:6:\"normal\";s:1:\"c\";s:3:\"web\";}i:2;a:3:{s:1:\"a\";i:5;s:1:\"b\";s:7:\"admin27\";s:1:\"c\";s:3:\"web\";}}}', 1769969286);
+('laravel_cache_356a192b7913b04c54574d18c28d46e6395428ab', 'i:2;', 1770130502),
+('laravel_cache_356a192b7913b04c54574d18c28d46e6395428ab:timer', 'i:1770130502;', 1770130502),
+('laravel_cache_livewire-rate-limiter:91d5b1a7a5ea7c47b9f493cbac5cb1dd0ca2cfe7', 'i:1;', 1770043650),
+('laravel_cache_livewire-rate-limiter:91d5b1a7a5ea7c47b9f493cbac5cb1dd0ca2cfe7:timer', 'i:1770043650;', 1770043650),
+('laravel_cache_livewire-rate-limiter:a17961fa74e9275d529f489537f179c05d50c2f3', 'i:1;', 1770118775),
+('laravel_cache_livewire-rate-limiter:a17961fa74e9275d529f489537f179c05d50c2f3:timer', 'i:1770118775;', 1770118775),
+('laravel_cache_spatie.permission.cache', 'a:3:{s:5:\"alias\";a:4:{s:1:\"a\";s:2:\"id\";s:1:\"b\";s:4:\"name\";s:1:\"c\";s:10:\"guard_name\";s:1:\"r\";s:5:\"roles\";}s:11:\"permissions\";a:38:{i:0;a:4:{s:1:\"a\";i:6;s:1:\"b\";s:10:\"view users\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:1;a:4:{s:1:\"a\";i:7;s:1:\"b\";s:12:\"create users\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:5;}}i:2;a:4:{s:1:\"a\";i:8;s:1:\"b\";s:12:\"update users\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:3;a:4:{s:1:\"a\";i:9;s:1:\"b\";s:12:\"delete users\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:4;a:4:{s:1:\"a\";i:10;s:1:\"b\";s:10:\"view roles\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:5;a:4:{s:1:\"a\";i:11;s:1:\"b\";s:12:\"create roles\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:5;}}i:6;a:4:{s:1:\"a\";i:12;s:1:\"b\";s:12:\"update roles\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:7;a:4:{s:1:\"a\";i:13;s:1:\"b\";s:12:\"delete roles\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:8;a:4:{s:1:\"a\";i:18;s:1:\"b\";s:16:\"view permissions\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:3;}}i:9;a:4:{s:1:\"a\";i:19;s:1:\"b\";s:18:\"create permissions\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:5;}}i:10;a:4:{s:1:\"a\";i:20;s:1:\"b\";s:18:\"update permissions\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:11;a:4:{s:1:\"a\";i:21;s:1:\"b\";s:18:\"delete permissions\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:12;a:4:{s:1:\"a\";i:45;s:1:\"b\";s:10:\"view admin\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:13;a:4:{s:1:\"a\";i:46;s:1:\"b\";s:12:\"create admin\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:14;a:4:{s:1:\"a\";i:47;s:1:\"b\";s:12:\"delete admin\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:15;a:4:{s:1:\"a\";i:48;s:1:\"b\";s:12:\"update admin\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:16;a:4:{s:1:\"a\";i:49;s:1:\"b\";s:11:\"view Branch\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:17;a:4:{s:1:\"a\";i:50;s:1:\"b\";s:13:\"create Branch\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:18;a:4:{s:1:\"a\";i:51;s:1:\"b\";s:13:\"update Branch\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:19;a:4:{s:1:\"a\";i:52;s:1:\"b\";s:13:\"delete Branch\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:20;a:4:{s:1:\"a\";i:53;s:1:\"b\";s:13:\"view Resident\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:21;a:4:{s:1:\"a\";i:54;s:1:\"b\";s:15:\"update Resident\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:22;a:4:{s:1:\"a\";i:55;s:1:\"b\";s:15:\"delete Resident\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:23;a:4:{s:1:\"a\";i:56;s:1:\"b\";s:15:\"create Resident\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:24;a:4:{s:1:\"a\";i:57;s:1:\"b\";s:11:\"view orders\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:25;a:4:{s:1:\"a\";i:58;s:1:\"b\";s:13:\"update orders\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:26;a:4:{s:1:\"a\";i:59;s:1:\"b\";s:18:\"view Delivery Apps\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:27;a:4:{s:1:\"a\";i:60;s:1:\"b\";s:20:\"create Delivery Apps\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:28;a:4:{s:1:\"a\";i:61;s:1:\"b\";s:20:\"delete Delivery Apps\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:29;a:4:{s:1:\"a\";i:62;s:1:\"b\";s:20:\"update Delivery Apps\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:30;a:4:{s:1:\"a\";i:63;s:1:\"b\";s:19:\"create Subscription\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:31;a:4:{s:1:\"a\";i:64;s:1:\"b\";s:19:\"update Subscription\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:32;a:4:{s:1:\"a\";i:65;s:1:\"b\";s:19:\"delete Subscription\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:33;a:4:{s:1:\"a\";i:67;s:1:\"b\";s:17:\"view Subscription\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:34;a:4:{s:1:\"a\";i:68;s:1:\"b\";s:10:\"view plans\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:35;a:4:{s:1:\"a\";i:69;s:1:\"b\";s:12:\"update plans\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:36;a:4:{s:1:\"a\";i:70;s:1:\"b\";s:12:\"delete plans\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:37;a:4:{s:1:\"a\";i:71;s:1:\"b\";s:12:\"create plans\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}}s:5:\"roles\";a:3:{i:0;a:3:{s:1:\"a\";i:1;s:1:\"b\";s:5:\"admin\";s:1:\"c\";s:3:\"web\";}i:1;a:3:{s:1:\"a\";i:3;s:1:\"b\";s:6:\"normal\";s:1:\"c\";s:3:\"web\";}i:2;a:3:{s:1:\"a\";i:5;s:1:\"b\";s:7:\"admin27\";s:1:\"c\";s:3:\"web\";}}}', 1770303267);
 
 -- --------------------------------------------------------
 
@@ -366,7 +373,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (44, '2026_01_31_082559_add_created_by_to_orders_table', 21),
 (48, '2026_01_31_172211_create_activity_log_table', 22),
 (49, '2026_01_31_172212_add_event_column_to_activity_log_table', 22),
-(50, '2026_01_31_172213_add_batch_uuid_column_to_activity_log_table', 22);
+(50, '2026_01_31_172213_add_batch_uuid_column_to_activity_log_table', 22),
+(51, '2026_02_01_194219_create_sliders_table', 23);
 
 -- --------------------------------------------------------
 
@@ -425,15 +433,15 @@ CREATE TABLE `oauth_access_tokens` (
 
 INSERT INTO `oauth_access_tokens` (`id`, `user_id`, `client_id`, `name`, `scopes`, `revoked`, `created_at`, `updated_at`, `expires_at`) VALUES
 ('006ebef5588857ec9cb60c8eec0e282bcc8c86bdaedb94f3291c150fa328908468ef0c0730e5c788', 5, '019b5d24-2e5f-71c6-b472-ff01043adb4f', 'resident-token', '[]', 0, '2026-01-29 12:32:20', '2026-01-29 12:32:20', '2027-01-29 15:32:20'),
-('0cf07952441de130018d2288b89d1ec5a97d7f5fea20e5d88a3d552d0e29fedc04dc6112a1feee70', 1, '019b5d24-2e5f-71c6-b472-ff01043adb4f', 'resident-token', '[]', 0, '2026-01-30 18:34:59', '2026-01-30 18:34:59', '2027-01-30 21:34:59'),
-('1d05b9c4f4453cb8d51324a69b29b1193edc0b24803a546f14fef5bc5a8dd037631513e2c3b97b64', 3, '019b5d24-2e5f-71c6-b472-ff01043adb4f', 'resident-token', '[]', 0, '2025-12-27 08:50:41', '2025-12-27 08:50:41', '2026-12-27 11:50:41'),
+('09f11834c97373c19b79344d41c6d6139c6c788e2a5a071813fe00ee2ee17c03420c4cb9811e4789', 1, '019b5d24-6f4d-73ae-8aeb-844821b59779', 'admin-token', '[]', 0, '2026-02-02 11:45:26', '2026-02-02 11:45:26', '2027-02-02 14:45:26'),
+('1736c2222cf4d7d530738dd61f4c340d248c606fd64c49d1a3d5cd254b422086b5fa4675b1dd0e7e', 3, '019b5d24-2e5f-71c6-b472-ff01043adb4f', 'resident-token', '[]', 0, '2026-02-03 09:20:13', '2026-02-03 09:20:14', '2027-02-03 12:20:13'),
+('272f6cd2f7f6286f31ce78136a1ccce262deba63ad344c10f80df3295dad767f5d070e7a4d10567e', 7, '019b5d24-2e5f-71c6-b472-ff01043adb4f', 'resident-token', '[]', 0, '2026-02-03 09:12:01', '2026-02-03 09:12:01', '2027-02-03 12:12:01'),
 ('29d2ea6a83fc6ee1a0a88cfa104c10c49309e874da00ee39e53c3f135fec84ba2e035cdb5b28d259', 2, '019b5d24-6f4d-73ae-8aeb-844821b59779', 'admin-token', '[]', 0, '2026-01-17 08:12:49', '2026-01-17 08:12:49', '2027-01-17 11:12:49'),
 ('6d4bcf978b35664ff4b3a54b7cffdc6a18aadfb8446be541b04e3ec0e1855eb9b44ae5790a026b81', 3, '019b5d24-6f4d-73ae-8aeb-844821b59779', 'admin-token', '[]', 0, '2026-01-30 09:06:41', '2026-01-30 09:06:41', '2027-01-30 12:06:41'),
 ('7a3395f3aa553aa7bdb2ea46fd03fd00059c5b80e04a2925830199dc688c86553a43818ee68e70fe', 2, '019b5d24-2e5f-71c6-b472-ff01043adb4f', 'resident-token', '[]', 0, '2025-12-27 07:37:30', '2025-12-27 07:37:30', '2026-12-27 10:37:30'),
 ('99c8657c061f498873d0983301d34946a454b1cbacc5ce69c7ed36a46b5660ed15256681a64ebc75', 4, '019b5d24-6f4d-73ae-8aeb-844821b59779', 'admin-token', '[]', 0, '2026-01-31 14:24:34', '2026-01-31 14:24:34', '2027-01-31 17:24:34'),
-('ab6389f07904d6524addc55ab10417ff1d8c5001726b5090e15d6315b222792b7c08a8a4c4efd623', 1, '019b5d24-6f4d-73ae-8aeb-844821b59779', 'admin-token', '[]', 0, '2026-01-31 05:37:01', '2026-01-31 05:37:01', '2027-01-31 08:37:01'),
 ('dc41492d5ac7a6d3448b20feba3d6f84f979130eacd328c849f5a9cf27f0f952e424a9405fab0335', 6, '019b5d24-2e5f-71c6-b472-ff01043adb4f', 'resident-token', '[]', 0, '2026-01-29 13:11:02', '2026-01-29 13:11:02', '2027-01-29 16:11:02'),
-('f587762ae92d780fb77ed7930fa2c301ced71855dd9869e337229e80dfa8a44c0fa80a5c8b653d65', 7, '019b5d24-2e5f-71c6-b472-ff01043adb4f', 'resident-token', '[]', 0, '2026-01-31 07:31:56', '2026-01-31 07:31:56', '2027-01-31 10:31:56');
+('ec39d8429b7f0b202f211fc5d7345011b39b617ba97e7f64266b7eebcf69a3f08785a2ef70219574', 1, '019b5d24-2e5f-71c6-b472-ff01043adb4f', 'resident-token', '[]', 0, '2026-02-03 09:15:18', '2026-02-03 09:15:18', '2027-02-03 12:15:18');
 
 -- --------------------------------------------------------
 
@@ -702,11 +710,12 @@ CREATE TABLE `residents` (
 --
 
 INSERT INTO `residents` (`id`, `name`, `phone`, `password`, `branch_id`, `is_active`, `created_at`, `updated_at`) VALUES
-(1, 'Osama Ahmed', '441', '$2y$12$zkQspkQIpZ2.LFNr6nssu.kZyoUh2A9ZvdH52calf70/iHtGeZ1y6', 1, 1, '2025-12-26 20:04:18', '2026-01-31 05:55:47'),
-(3, 'mgd', '7183232599', '$2y$12$ty3Q1Y.s1ux8oT6Yzsw6Uu0yB4S6X7owZMQaMDM7mi9IlTETuajiG', 3, 1, '2025-12-27 08:45:57', '2026-01-31 05:55:47'),
+(1, 'Osama Ahmed', '441', '$2y$12$lX600KNNNXlbMeVGHIRvuO1A27fjSnyuXOGdNf7qphNnpkWz22nB.', 1, 1, '2025-12-26 20:04:18', '2026-02-03 09:10:05'),
+(3, 'mgd', '7183232599', '$2y$12$RtNCrJJeoFQjFUl6TNizluu/ICySYPryzKQX3q2moC8t9E6pHnVQG', 3, 1, '2025-12-27 08:45:57', '2026-02-03 06:16:14'),
 (5, 'Osama 56', '8956556666666', '$2y$12$8uz1S424bL2bVplIHej.0el8y8RvlFsub6x86nW.vI1ONLa1WbC2a', 1, 1, '2026-01-29 12:00:54', '2026-01-31 05:55:47'),
 (6, 'mgd', '4455555', '$2y$12$l6/HJYGM/yljAJ4J4bM8yeEyMg2BN9S2PFgX8BCSdf/9GdbHyBHX6', 4, 1, '2026-01-29 13:06:22', '2026-01-31 05:55:47'),
-(7, 'osvu', '718323599', '$2y$12$URbjuK5KntgldBerDIxHOezZmkG4YWPBrAATp1aCJi4HunPIkv7sy', 5, 1, '2026-01-31 06:28:25', '2026-01-31 07:31:52');
+(7, 'osvu', '718323599', '$2y$12$odUF2E1bnDBh2Kyfjam4juRkdhy3X1aK0fijUb8bl1Hu5JAQarxve', 5, 1, '2026-01-31 06:28:25', '2026-02-03 09:11:57'),
+(8, 'mgd', '777888555', '$2y$12$MK3lheBQHpojEyZviyCQHeL2OzqsODTsvcteCrPQSGfumRwgR2qHC', 3, 1, '2026-02-02 10:57:58', '2026-02-02 10:57:58');
 
 -- --------------------------------------------------------
 
@@ -813,7 +822,30 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('H5eNIXR6MlgF45rcDGFh5xDTXG6yyIDfGDImFxfe', 1, '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiZTNSVHhXWUNweHVVb2FLVkN6aVI5QW9KV01vcTRzcUtXMjZLRXpMdyI7czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTtzOjE3OiJwYXNzd29yZF9oYXNoX3dlYiI7czo2MDoiJDJ5JDEyJFFCWEdJTFkzVGtId2c3NXdHM2ouQk9KV1M5OG1ndTVYeUpkMjFTUy5uVDRvTElLTml6WEVPIjtzOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19', 1769961012);
+('OLA39LEQOzLFWMIS26JrPNZ6fGJkglG2njPG2zvr', 1, '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoidmhrbWdHVGtVcXMwMzdwd3MxRERqQzE4ZVpCeUhKdklOUm53MHQ5WSI7czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTtzOjE3OiJwYXNzd29yZF9oYXNoX3dlYiI7czo2MDoiJDJ5JDEyJFFCWEdJTFkzVGtId2c3NXdHM2ouQk9KV1M5OG1ndTVYeUpkMjFTUy5uVDRvTElLTml6WEVPIjtzOjk6Il9wcmV2aW91cyI7YToxOntzOjM6InVybCI7czozMzoiaHR0cDovLzEyNy4wLjAuMTo4MDAxL2FkbWluL3BsYW5zIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1770216953),
+('Yw6Hu5uBH48womne6Wu1DotpADKmeaNVgKeIUBks', 1, '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'YTo2OntzOjY6Il90b2tlbiI7czo0MDoiS2xRMUlUN1ZvUWZWOHBIb1Z1M0RKOGZEQmRYUlRQTVJUYTdXdmdoNCI7czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTtzOjE3OiJwYXNzd29yZF9oYXNoX3dlYiI7czo2MDoiJDJ5JDEyJFFCWEdJTFkzVGtId2c3NXdHM2ouQk9KV1M5OG1ndTVYeUpkMjFTUy5uVDRvTElLTml6WEVPIjtzOjk6Il9wcmV2aW91cyI7YToxOntzOjM6InVybCI7czo0MjoiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2FkbWluL3NsaWRlcnMvMS9lZGl0Ijt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo4OiJmaWxhbWVudCI7YTowOnt9fQ==', 1770130504);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sliders`
+--
+
+CREATE TABLE `sliders` (
+  `id` bigint UNSIGNED NOT NULL,
+  `image` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `sliders`
+--
+
+INSERT INTO `sliders` (`id`, `image`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 'sliders/01KGHZZM7YQVSZ0J3MZZE6DAE7.webp', 1, '2026-02-01 16:47:33', '2026-02-03 11:54:53'),
+(2, 'sliders/01KGHZY4F62SCDM3WA8JH1EDCB.webp', 1, '2026-02-01 16:47:52', '2026-02-03 11:54:04');
 
 -- --------------------------------------------------------
 
@@ -1152,6 +1184,12 @@ ALTER TABLE `sessions`
   ADD KEY `sessions_last_activity_index` (`last_activity`);
 
 --
+-- Indexes for table `sliders`
+--
+ALTER TABLE `sliders`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `staff`
 --
 ALTER TABLE `staff`
@@ -1203,7 +1241,7 @@ ALTER TABLE `admins`
 -- AUTO_INCREMENT for table `admin_branch`
 --
 ALTER TABLE `admin_branch`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `branches`
@@ -1239,7 +1277,7 @@ ALTER TABLE `media`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT for table `orders`
@@ -1263,13 +1301,19 @@ ALTER TABLE `plans`
 -- AUTO_INCREMENT for table `residents`
 --
 ALTER TABLE `residents`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
   MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `sliders`
+--
+ALTER TABLE `sliders`
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `staff`

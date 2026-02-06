@@ -291,4 +291,49 @@ class ResidentAuthController extends Controller
             ],
         ], 200);
     }
+    /**
+ * عرض كل الفروع المرتبطة بالأدمن التابع للمقيم
+ */
+public function adminBranches(Request $request)
+{
+    $resident = $request->user('api');
+
+    // الحصول على الأدمن المرتبط بالمقيم
+    $admin = $resident->getAdmin();
+
+    if (!$admin) {
+        return response()->json([
+            'success' => false,
+            'message' => 'لا يوجد مسؤول مرتبط بهذا المقيم',
+        ], 404);
+    }
+
+    // جلب كل الفروع المرتبطة بالأدمن
+    $branches = $admin->branches()->get();
+
+    // أو إذا تبي الفروع النشطة فقط:
+    // $branches = $admin->activeBranches()->get();
+
+    if ($branches->isEmpty()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'لا توجد فروع مرتبطة بالمسؤول',
+        ], 404);
+    }
+
+    return response()->json([
+        'success' => true,
+        'total' => $branches->count(),
+        'branches' => $branches->map(function ($branch) {
+            return [
+                'id' => $branch->id,
+                'name' => $branch->name,
+                'location' => $branch->location,
+                'is_active' => $branch->is_active,
+                'created_at' => $branch->created_at->format('Y-m-d'),
+            ];
+        }),
+    ], 200);
+}
+
 }

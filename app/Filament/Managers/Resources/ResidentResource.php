@@ -27,14 +27,12 @@ class ResidentResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    // ✅ الحل: التحقق من وجود المستخدم
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
-        $admin = auth()->user();
+        $admin = auth('admins')->user();
 
-        // ✅ التحقق من أن Admin موجود
-        if (!$admin) {
+            if (!$admin) {
             return $query->whereRaw('1 = 0'); // لا يرجع أي نتائج
         }
 
@@ -47,7 +45,7 @@ class ResidentResource extends Resource
 
     public static function form(Form $form): Form
     {
-        $admin = auth()->user();
+        $admin = auth('admins')->user();
 
         // ✅ التحقق من وجود Admin
         if (!$admin) {
@@ -292,8 +290,7 @@ class ResidentResource extends Resource
 
     public static function canCreate(): bool
     {
-        $admin = auth()->user();
-        // ✅ التحقق من وجود Admin
+        $admin = auth('admins')->user();
         if (!$admin) {
             return false;
         }
