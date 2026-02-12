@@ -95,7 +95,7 @@ class Order extends Model implements HasMedia
         return $this->morphTo('created_by');
     }
 
-    
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('images')->useDisk('public');
