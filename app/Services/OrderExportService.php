@@ -10,12 +10,184 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use Illuminate\Support\Collection;
+use Barryvdh\DomPDF\Facade\Pdf;
+use TCPDF;
 
 class OrderExportService
 {
+
+
+     public function exportToPdf($orders, $fileName = 'orders')
+{
+    $fileName = $fileName . '_' . now()->format('Y-m-d_H-i-s') . '.pdf';
+    $tempPath = storage_path('temp/' . $fileName);
+
+    if (!is_dir(storage_path('temp'))) {
+        mkdir(storage_path('temp'), 0755, true);
+    }
+
+    $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+
+    $pdf->setRTL(true);
+    $pdf->SetMargins(15, 20, 15);
+    $pdf->SetAutoPageBreak(true, 20);
+    $pdf->SetFont('dejavusans', '', 11);
+
+    $pdf->AddPage();
+
+    // العنوان
+    $pdf->SetFont('', 'B', 20);
+    $pdf->SetTextColor(68, 114, 196);
+    $pdf->Cell(0, 10, 'تقرير الطلبات', 0, 1, 'C');
+
+    $pdf->SetFont('', '', 10);
+    $pdf->SetTextColor(100, 100, 100);
+    $pdf->Cell(0, 6, 'تاريخ التقرير: ' . now()->format('Y-m-d H:i'), 0, 1, 'C');
+
+    $pdf->Ln(5);
+
+    $pdf->SetFont('', 'B', 12);
+    $pdf->SetTextColor(0, 0, 0);
+    $pdf->Cell(0, 8, 'عدد الطلبات: ' . $orders->count(), 0, 1, 'R');
+
+    $pdf->Ln(5);
+
+    // جدول ملخص
+    if ($orders->isNotEmpty()) {
+
+        $pdf->SetFillColor(68, 114, 196);
+        $pdf->SetTextColor(255, 255, 255);
+        $pdf->SetFont('', 'B', 11);
+
+        $pdf->Cell(35, 10, 'رقم المرجعية', 1, 0, 'C', 1);
+        $pdf->Cell(40, 10, 'المقيم', 1, 0, 'C', 1);
+        $pdf->Cell(30, 10, 'الفرع', 1, 0, 'C', 1);
+        $pdf->Cell(35, 10, 'التاريخ', 1, 0, 'C', 1);
+        $pdf->Cell(25, 10, 'الصور', 1, 1, 'C', 1);
+
+        $pdf->SetFillColor(255, 255, 255);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFont('', '', 10);
+
+        foreach ($orders as $order) {
+            $pdf->Cell(35, 8, $order->order_number, 1, 0, 'C');
+            $pdf->Cell(40, 8, $order->resident->name ?? '-', 1, 0, 'C');
+            $pdf->Cell(30, 8, $order->branch->name ?? '-', 1, 0, 'C');
+            $pdf->Cell(35, 8, optional($order->submitted_at)->format('Y-m-d H:i') ?? '-', 1, 0, 'C');
+            $pdf->Cell(25, 8, $order->getMedia('images')->count() . ' صورة', 1, 1, 'C');
+        }
+    }
+
+    $pdf->AddPage();
+
+    // تفاصيل كاملة
+    foreach ($orders as $index => $order) {
+
+        $pdf->SetFont('', 'B', 16);
+        $pdf->SetTextColor(68, 114, 196);
+        $pdf->MultiCell(0, 10, " الطلب رقم: {$order->order_number}", 0, 'R');
+
+        $pdf->Ln(3);
+
+        $pdf->SetFont('', '', 11);
+        $pdf->SetTextColor(0, 0, 0);
+
+        $details = [
+            'رقم الطلب' => $order->number ?? '-',
+            'المقيم' => $order->resident->name ?? '-',
+            'الفرع' => $order->branch->name ?? '-',
+            'تاريخ الإرسال' => optional($order->submitted_at)->format('Y-m-d H:i:s') ?? '-',
+            'تاريخ الإنشاء' => optional($order->created_at)->format('Y-m-d H:i:s') ?? '-',
+        ];
+
+        if ($order->notes) {
+            $details['الملاحظات'] = $order->notes;
+        }
+
+        foreach ($details as $label => $value) {
+            $pdf->SetFillColor(242, 242, 242);
+            $pdf->Cell(50, 8, $label, 1, 0, 'R', 1);
+            $pdf->Cell(130, 8, $value, 1, 1, 'R');
+        }
+
+        $pdf->Ln(5);
+
+       $images = $order->getMedia('images');
+
+if ($images->count() > 0) {
+
+    $pdf->SetFont('', 'B', 14);
+    $pdf->SetTextColor(68, 114, 196);
+    $pdf->MultiCell(0, 8, 'الصور المرفقة (' . $images->count() . ')', 0, 'R');
+    $pdf->Ln(5);
+
+    $imageWidth = 50;
+    $imageHeight = 50;
+    $margin = 10;
+    $imagesPerRow = 3;
+
+    $shiftRight = 60;
+
+    $totalWidth = ($imagesPerRow * $imageWidth) + (($imagesPerRow - 1) * $margin);
+
+    $startX = (($pdf->getPageWidth() - $totalWidth) / 2) + $shiftRight;
+    $currentX = $startX;
+    $currentY = $pdf->GetY();
+
+    $counter = 0;
+
+    foreach ($images as $media) {
+
+        if (file_exists($media->getPath())) {
+
+            if ($currentY + $imageHeight > ($pdf->getPageHeight() - 20)) {
+                $pdf->AddPage();
+                $currentY = $pdf->GetY();
+                $currentX = $startX;
+            }
+
+            $pdf->Image(
+                $media->getPath(),
+                $currentX,
+                $currentY,
+                $imageWidth,
+                $imageHeight
+            );
+
+            $counter++;
+
+            if ($counter % $imagesPerRow == 0) {
+                $currentX = $startX;
+                $currentY += $imageHeight + 10;
+            } else {
+                $currentX += $imageWidth + $margin;
+            }
+        }
+    }
+
+    $pdf->SetY($currentY + $imageHeight + 10);
+
+} else {
+
+    $pdf->SetFont('', '', 11);
+    $pdf->MultiCell(0, 8, 'لا توجد صور مرفقة', 0, 'R');
+}
+
+        if ($index < $orders->count() - 1) {
+            $pdf->AddPage();
+        }
+    }
+
+    $pdf->Output($tempPath, 'F');
+
+    return $tempPath;
+}
+
     /**
      * تصدير إلى Word مع الصور
      */
+
+
     public function exportToWord($orders, $fileName = 'orders')
     {
         $phpWord = new PhpWord();

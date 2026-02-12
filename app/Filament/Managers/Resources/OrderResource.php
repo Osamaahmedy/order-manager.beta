@@ -280,6 +280,20 @@ class OrderResource extends Resource
                         return $service->download($filePath, 'طلب_' . $record->order_number . '.docx');
                     })
                     ->tooltip('تصدير هذا الطلب إلى ملف Word'),
+Action::make('export_pdf')
+    ->label('📄 PDF')
+    ->color('danger')
+    ->action(function (Order $record) {
+        $service = new OrderExportService();
+        $filePath = $service->exportToPdf(
+            collect([$record]),
+            'order_' . $record->order_number
+        );
+        return $service->download(
+            $filePath,
+            'طلب_' . $record->order_number . '.pdf'
+        );
+    }),
 
                 // ✅ اكسبورت طلب واحد Excel
                 Action::make('export_excel')
@@ -313,6 +327,7 @@ class OrderResource extends Resource
                     ->modalSubmitActionLabel('تصدير')
                     ->modalCancelActionLabel('إلغاء'),
 
+
                 // ✅ اكسبورت جماعي Excel
                 BulkAction::make('export_excel_bulk')
                     ->label('📊 تصدير Excel')
@@ -328,6 +343,7 @@ class OrderResource extends Resource
                     ->modalDescription('هل تريد تصدير الطلبات المحددة إلى ملف Excel؟')
                     ->modalSubmitActionLabel('تصدير')
                     ->modalCancelActionLabel('إلغاء'),
+
 
                 // ✅ اكسبورت الكل جماعي
                 BulkAction::make('export_all_bulk')

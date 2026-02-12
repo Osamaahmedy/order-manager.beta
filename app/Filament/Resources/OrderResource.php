@@ -15,8 +15,11 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Illuminate\Database\Eloquent\Builder;
+use App\Services\OrderExportService;
 
 use Illuminate\Database\Eloquent\Model;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\BulkAction;
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
@@ -415,6 +418,60 @@ class OrderResource extends Resource
             ])
             ->bulkActions([
     Tables\Actions\DeleteBulkAction::make(),
+
+                // ✅ اكسبورت جماعي Word
+                BulkAction::make('export_word_bulk')
+                    ->label('📄 تصدير Word')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('info')
+                    ->action(function (Collection $records) {
+                        $service = new OrderExportService();
+                        $filePath = $service->exportToWord($records, 'orders_bulk');
+                        return $service->download($filePath, 'الطلبات_' . now()->format('Y-m-d') . '.docx');
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading('تصدير إلى Word')
+                    ->modalDescription('هل تريد تصدير الطلبات المحددة إلى ملف Word؟')
+                    ->modalSubmitActionLabel('تصدير')
+                    ->modalCancelActionLabel('إلغاء'),
+
+
+                // ✅ اكسبورت جماعي Excel
+                BulkAction::make('export_excel_bulk')
+                    ->label('📊 تصدير Excel')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->action(function (Collection $records) {
+                        $service = new OrderExportService();
+                        $filePath = $service->exportToExcel($records, 'orders_bulk');
+                        return $service->download($filePath, 'الطلبات_' . now()->format('Y-m-d') . '.xlsx');
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading('تصدير إلى Excel')
+                    ->modalDescription('هل تريد تصدير الطلبات المحددة إلى ملف Excel؟')
+                    ->modalSubmitActionLabel('تصدير')
+                    ->modalCancelActionLabel('إلغاء'),
+
+
+                // ✅ اكسبورت الكل جماعي
+                BulkAction::make('export_all_bulk')
+                    ->label('📦 تصدير الكل')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('warning')
+                    ->action(function () {
+                        $admin = auth()->user();
+                        $branchIds = $admin->branches()->pluck('branches.id')->toArray();
+                        $records = Order::whereIn('branch_id', $branchIds)->get();
+
+                        $service = new OrderExportService();
+                        $filePath = $service->exportToWord($records, 'all_orders');
+                        return $service->download($filePath, 'جميع_الطلبات_' . now()->format('Y-m-d') . '.docx');
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading('تصدير جميع الطلبات')
+                    ->modalDescription('هل تريد تصدير جميع الطلبات إلى ملف Word؟')
+                    ->modalSubmitActionLabel('تصدير')
+                    ->modalCancelActionLabel('إلغاء'),
 ])
 
             ->actions([
@@ -439,6 +496,49 @@ class OrderResource extends Resource
                             'hover:-translate-y-0.5 hover:shadow-md ' .
                             'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400',
                     ]),
+
+                Action::make('export_word')
+                    ->label('📄 Word')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('info')
+                    ->action(function (Order $record) {
+                        $service = new OrderExportService();
+                        $filePath = $service->exportToWord(
+                            collect([$record]),
+                            'order_' . $record->order_number
+                        );
+                        return $service->download($filePath, 'طلب_' . $record->order_number . '.docx');
+                    })
+                    ->tooltip('تصدير هذا الطلب إلى ملف Word'),
+Action::make('export_pdf')
+    ->label('📄 PDF')
+    ->color('danger')
+    ->action(function (Order $record) {
+        $service = new OrderExportService();
+        $filePath = $service->exportToPdf(
+            collect([$record]),
+            'order_' . $record->order_number
+        );
+        return $service->download(
+            $filePath,
+            'طلب_' . $record->order_number . '.pdf'
+        );
+    }),
+
+                // ✅ اكسبورت طلب واحد Excel
+                Action::make('export_excel')
+                    ->label('📊 Excel')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->action(function (Order $record) {
+                        $service = new OrderExportService();
+                        $filePath = $service->exportToExcel(
+                            collect([$record]),
+                            'order_' . $record->order_number
+                        );
+                        return $service->download($filePath, 'طلب_' . $record->order_number . '.xlsx');
+                    })
+                    ->tooltip('تصدير هذا الطلب إلى ملف Excel'),
             ])
             ->emptyStateHeading('لا توجد طلبات')
             ->emptyStateDescription('جرّب تغيير الفلاتر أو إضافة طلب جديد.')
