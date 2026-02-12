@@ -393,7 +393,30 @@ class OrderResource extends Resource
                         true: fn($query) => $query->whereHas('media', fn($q) => $q->where('collection_name', 'videos')),
                         false: fn($query) => $query->whereDoesntHave('media', fn($q) => $q->where('collection_name', 'videos')),
                     ),
+                    Tables\Filters\Filter::make('created_at')
+    ->label('تاريخ الإنشاء')
+    ->form([
+        Forms\Components\DatePicker::make('from')
+            ->label('من تاريخ'),
+        Forms\Components\DatePicker::make('until')
+            ->label('إلى تاريخ'),
+    ])
+    ->query(function (Builder $query, array $data): Builder {
+        return $query
+            ->when(
+                $data['from'],
+                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+            )
+            ->when(
+                $data['until'],
+                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+            );
+    }),
             ])
+            ->bulkActions([
+    Tables\Actions\DeleteBulkAction::make(),
+])
+
             ->actions([
                 Tables\Actions\ViewAction::make()
                     ->label('عرض')
